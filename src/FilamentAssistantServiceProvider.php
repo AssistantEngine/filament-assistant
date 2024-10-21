@@ -4,7 +4,6 @@ namespace AssistantEngine\Filament;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use AssistantEngine\FilamentAssistant\Commands\FilamentAssistantCommand;
 
 class FilamentAssistantServiceProvider extends PackageServiceProvider
 {
