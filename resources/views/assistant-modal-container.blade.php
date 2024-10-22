@@ -1,0 +1,1 @@
+<livewire:filament-assistant::assistant-modal wire:key="filament-assistant:assistant-modal" :option="$option" :showTabs="$showTabs" :maxVisibleTabs="$maxVisibleTabs" :showComponent="$showComponent" :autoHeight="$autoHeight"/>
