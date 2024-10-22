@@ -1,4 +1,4 @@
-<div class="h-full">
+<div class="h-full dark:bg-gray-900">
     @if ($showWithoutTrigger === false)
         <div class="absolute end-3 top-3 cursor-pointer z-40">
             <button class=" text-gray-400" wire:click="closeSidebar()">
