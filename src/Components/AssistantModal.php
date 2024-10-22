@@ -28,6 +28,7 @@ class AssistantModal extends Component
     public $showTabs = false;
     public $showComponent = false;
     public $autoHeight = false;
+    public $slideOver = false;
 
     protected AssistantEngine $assistantEngine;
 

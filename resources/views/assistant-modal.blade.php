@@ -72,7 +72,7 @@
                 @endif
             </div>
         @else
-            <div class="w-full p-4 pb-0 dark:bg-neutral-900 dark:text-neutral-200">
+            <div class="w-full h-full overflow-y-hidden p-4 pb-0 dark:bg-neutral-900 dark:text-neutral-200">
                 @if($threadId)
                     <livewire:assistant-engine::chat-component key="filament-assistant:assistant-modal-chat" :conversationId="$threadId"/>
                 @endif
@@ -83,12 +83,26 @@
 
 @script
 <script>
-    initMaxHeight();
+    let autoHeight = $wire.get('autoHeight');
+
+    if (autoHeight) {
+        initMaxHeight();
+    }
 
     // init the max height and indicate that component should scroll
     function initMaxHeight() {
+        let slideOver = $wire.get('slideOver');
+
         let operationContainer = document.getElementById('filament-assistant::chat-modal-container');
-        operationContainer.style.height = window.innerHeight - 200 + 'px';
+        let modalHeaderQuery = document.querySelector('.fi-modal.block.fi-modal-open .fi-modal-header h2');
+
+        if (slideOver && modalHeaderQuery) {
+            operationContainer.style.height = window.innerHeight - 130 + 'px';
+        } else if (slideOver) {
+            operationContainer.style.height = window.innerHeight - 50 + 'px';
+        } else {
+            operationContainer.style.height = window.innerHeight - 200 + 'px';
+        }
 
         $wire.set("maxHeight", operationContainer.style.height)
     }

@@ -24,7 +24,8 @@ class AssistantActionFactory
                         'maxVisibleTabs' => config('assistant-engine.filament.assistant-modal.max-visible-tabs', 7),
                         'showTabs' => config('assistant-engine.filament.assistant-modal.show-tabs', false),
                         'showComponent' => config('assistant-engine.filament.assistant-modal.show-page-component', false),
-                        'autoHeight' => config('assistant-engine.filament.assistant-modal.auto-height', false) && config('assistant-engine.filament.assistant-modal.slide-over', false) === false,
+                        'autoHeight' => config('assistant-engine.filament.assistant-modal.auto-height', false),
+                        'slideOver' => config('assistant-engine.filament.assistant-modal.slide-over', false),
                     ]);
                 })
                 ->modalSubmitAction(false)
