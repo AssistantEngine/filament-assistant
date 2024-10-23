@@ -38,7 +38,7 @@ class FilamentAssistantServiceProvider extends PackageServiceProvider
 
 
         $showSidebarWithoutTrigger = false;
-        if (config('assistant-engine.filament.assistant-sidebar.render')) {
+        if (config('assistant-engine.filament.assistant-sidebar.render') && auth()->check()) {
             $showSidebarWithoutTrigger = config('assistant-engine.filament.assistant-sidebar.show-without-trigger', false);
             FilamentView::registerRenderHook(
                 PanelsRenderHook::TOPBAR_BEFORE,
@@ -61,7 +61,7 @@ class FilamentAssistantServiceProvider extends PackageServiceProvider
             );
         }
 
-        if (config('assistant-engine.filament.assistant-button.show')) {
+        if (config('assistant-engine.filament.assistant-button.show') && auth()->check()) {
             FilamentView::registerRenderHook(
                 PanelsRenderHook::BODY_END,
                 function () use ($showSidebarWithoutTrigger) {
