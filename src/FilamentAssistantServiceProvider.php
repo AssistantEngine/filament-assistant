@@ -2,7 +2,6 @@
 
 namespace AssistantEngine\Filament;
 
-use App\Plugin\src\Runs\Contracts\RunProcessorInterface;
 use AssistantEngine\Filament\Chat\Components\AssistantButton;
 use AssistantEngine\Filament\Chat\Components\ChatComponent;
 use AssistantEngine\Filament\Chat\Components\ChatInputComponent;
@@ -13,6 +12,7 @@ use AssistantEngine\Filament\Chat\Contracts\ConversationOptionResolverInterface;
 use AssistantEngine\Filament\Chat\Driver\DefaultChatDriver;
 use AssistantEngine\Filament\Chat\Resolvers\ContextResolver;
 use AssistantEngine\Filament\Chat\Resolvers\ConversationOptionResolver;
+use AssistantEngine\Filament\Runs\Contracts\RunProcessorInterface;
 use AssistantEngine\Filament\Runs\Services\RunProcessorService;
 use Illuminate\Support\Facades\Config;
 use Livewire\Livewire;

@@ -28,7 +28,7 @@ composer require assistant-engine/filament-assistant
 Then, publish the configuration file using the command below:
 
 ```bash
-php artisan vendor:publish --tag=filament-assistant
+php artisan vendor:publish --tag=filament-assistant-config
 ```
 
 After installing the plugin, follow the instructions to create a [custom theme](https://filamentphp.com/docs/3.x/panels/themes#creating-a-custom-theme) and add the following lines to your new theme's `tailwind.config.js`:
