@@ -521,7 +521,7 @@ We’ve created more repositories to make AI integration even simpler and more p
 ## PRO Version
 
 For users looking for enhanced functionality, the **PRO Version** offers advanced features beyond the standard Filament Assistant capabilities:
-- **Tool Call Confirmations:** Require explicit user confirmation for all tool calls before they are executed, ensuring an extra layer of safety.
+- **Tool Call Confirmations:** Require explicit user confirmation for specific tool calls before they are executed, ensuring an extra layer of safety.
 - **RAG:** Index documents and make them accessible via a dedicated RAG tool.
 - **Conversational Memory:** Empower your assistants with conversational memory for improved context awareness and more natural interactions.
 - **Assistant Admin Panel:** Easily configure your assistants and tools.
