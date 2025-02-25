@@ -38,7 +38,6 @@ After installing the plugin, follow the instructions to create a [custom theme](
 export default {
     content: [
         './vendor/assistant-engine/filament-assistant/resources/**/*.blade.php',
-        './vendor/assistant-engine/laravel-assistant/resources/**/*.blade.php',
     ]
 };
 ```
