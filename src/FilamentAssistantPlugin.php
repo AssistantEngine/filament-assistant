@@ -7,18 +7,13 @@ use Filament\Panel;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Config;
 
 class FilamentAssistantPlugin implements Plugin
 {
-
     public function getId(): string
     {
         return 'filament-assistant::plugin';
-    }
-
-    public function register(Panel $panel): void
-    {
-        // TODO: Implement register() method.
     }
 
     public static function make(): static
@@ -26,16 +21,17 @@ class FilamentAssistantPlugin implements Plugin
         return app(static::class);
     }
 
+    public function register(Panel $panel): void
+    {
+        // TODO: Implement register() method.
+    }
+
     public function boot(Panel $panel): void
     {
-        $showSidebarWithoutTrigger = false;
-        if (config('assistant-engine.filament-assistant.sidebar.render')) {
-            $showSidebarWithoutTrigger = config('assistant-engine.filament-assistant.sidebar.show-without-trigger', false);
-            $width = config('assistant-engine.filament-assistant.sidebar.width', 400);
+        $sidebar = Config::get('filament-assistant.sidebar', []);
+        $button = Config::get('filament-assistant.button', []);
 
-            if (is_int($width) === false) {
-                throw new \Exception('assistant sidebar width must be an integer');
-            }
+        if ($sidebar['enabled']) {
 
             FilamentView::registerRenderHook(
                 PanelsRenderHook::TOPBAR_BEFORE,
@@ -73,16 +69,16 @@ class FilamentAssistantPlugin implements Plugin
 
             FilamentView::registerRenderHook(
                 PanelsRenderHook::PAGE_END,
-                function () use ($showSidebarWithoutTrigger, $width) {
+                function () use ($sidebar) {
                     if (!auth()->check()) {
                         return Blade::render("");
                     }
 
                     return Blade::render(
-                        '<livewire:filament-assistant::assistant-sidebar :width="$width" :showWithoutTrigger="$showWithoutTrigger"/>',
+                        '<livewire:filament-assistant::sidebar :width="$width" :openByDefault="$openByDefault"/>',
                         [
-                            'showWithoutTrigger' => $showSidebarWithoutTrigger,
-                            'width' => $width,
+                            'openByDefault' => $sidebar['open_by_default'],
+                            'width' => $sidebar['width'],
                         ]);
                 },
             );
@@ -97,22 +93,22 @@ class FilamentAssistantPlugin implements Plugin
                     return Blade::render('</div>');
                 },
             );
-        }
 
-        if (config('assistant-engine.filament-assistant.button.show') && config('assistant-engine.filament-assistant.sidebar.render')) {
-            FilamentView::registerRenderHook(
-                PanelsRenderHook::PAGE_END,
-                function () use ($showSidebarWithoutTrigger) {
-                    if (!auth()->check()) {
-                        return Blade::render("");
+            if ($button['show']) {
+                FilamentView::registerRenderHook(
+                    PanelsRenderHook::PAGE_END,
+                    function () use ($sidebar, $button) {
+                        if (!auth()->check()) {
+                            return Blade::render("");
+                        }
+
+                        return Blade::render('<livewire:filament-assistant::assistant-button :visible="$isVisible"  :options="$options" />', [
+                            'isVisible' => (bool) $sidebar['open_by_default'] === false,
+                            'options' => $button['options']
+                        ], true);
                     }
-
-                    return Blade::render('<livewire:filament-assistant::global-button :visible="$isVisible"  :options="$options" />', [
-                        'isVisible' => (bool) $showSidebarWithoutTrigger === false,
-                        'options' => config('assistant-engine.filament-assistant.button.options')
-                    ], true);
-                }
-            );
+                );
+            }
         }
     }
 }

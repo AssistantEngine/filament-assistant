@@ -16,8 +16,9 @@
     ],
     "require": {
         "php": "^8.2",
-        "assistant-engine/laravel-assistant": "^1.0",
-        "illuminate/contracts": "^10.0||^11.0",
+        "assistant-engine/open-functions-core": "^1.0",
+        "filament/filament": "^3.3",
+        "openai-php/client": "^0.10.3",
         "spatie/laravel-package-tools": "^1.16"
     },
     "require-dev": {
