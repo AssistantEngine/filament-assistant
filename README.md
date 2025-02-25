@@ -261,7 +261,7 @@ $options->recreate = false; // default false
 
 The **Context Resolver** is responsible for resolving context models that are visible on the page and providing them to the assistant. This helps the assistant understand the context of the current page and allows it to access relevant information during the conversation.
 
-![Custom Pages Example](media/context-resolver.png)
+![Custom Pages Example](media/context-resolver-2.png)
 
 The default **Context Resolver** (`ContextResolver`) tries to collect models related to the page, such as records or list items, and injects them into the context of the `ConversationOption` object.
 
@@ -270,9 +270,10 @@ Example of a Context Resolver:
 ```php
 <?php
 
-namespace AssistantEngine\Filament\Resolvers;
+namespace AssistantEngine\Filament\Chat\Resolvers;
 
-use AssistantEngine\Filament\Contracts\ContextResolverInterface;
+use AssistantEngine\Filament\Chat\Contracts\ContextModelInterface;
+use AssistantEngine\Filament\Chat\Contracts\ContextResolverInterface;
 use Filament\Pages\Page;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Pages\ManageRelatedRecords;
@@ -315,8 +316,6 @@ The **Context Resolver** automatically gathers information about the page and it
 
 Sometimes you have pages which are fully custom, and where the standard Context Resolver doesn't get all the models visible to the customer. In this case, you can either implement your own Context Resolver based on the interface, or you can extend it, like in the example below, to add more context. You can extend the Context Resolver and, based on different pages, inject other contexts, like models or the description of the page, to give the LLM even more context about what the user is seeing right now.
 
-![Custom Pages Example](media/custom-pages-2.png)
-
 Example of a Custom Context Resolver:
 
 ```php
@@ -329,7 +328,7 @@ use App\Modules\Product\Models\ProductGoal;
 use App\Modules\Product\Models\ProductIdea;
 use Filament\Pages\Page;
 
-class ContextResolver extends \AssistantEngine\Filament\Resolvers\ContextResolver
+class ContextResolver extends AssistantEngine\Filament\Chat\Resolvers\ContextResolver
 {
     public function resolve(Page $page): array
     {
@@ -362,14 +361,13 @@ The standard resolving mechanism for models is to transform them to arrays. But 
 ```php
 <?php
 
-namespace AssistantEngine\Filament\Contracts;
-
-use Filament\Pages\Page;
+namespace AssistantEngine\Filament\Chat\Contracts;
 
 interface ContextModelInterface
 {
     public static function resolveModels(array $models): array;
 }
+
 ```
 
 There is also a trait implementing this interface called **Context Model**, where you can group models from the same class inside a data object and provide the LLM with metadata as well as exclude properties from the model itself. This ensures that sensitive data is not sent to the LLM directly, but you can adjust it to your needs.
@@ -377,9 +375,9 @@ There is also a trait implementing this interface called **Context Model**, wher
 ```php
 <?php
 
-namespace AssistantEngine\Filament\Traits;
+namespace AssistantEngine\Filament\Chat\Traits;
 
-use AssistantEngine\Filament\Resolvers\ContextModelResolver;
+use AssistantEngine\Filament\Chat\Resolvers\ContextModelResolver;
 
 trait ContextModel
 {
@@ -414,7 +412,7 @@ trait ContextModel
 This Trait you can implement in your Model Classes and overwrite the defined methods if needed:
 
 ```php
-namespace AssistantEngine\Filament\Contracts\ContextModelInterface;
+namespace AssistantEngine\Filament\Chat\Contracts\ContextModelInterface;
 
 #[Schema(
     schema: "Product",
