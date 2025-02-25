@@ -187,6 +187,10 @@ return [
 
 Feel free to change the assistants, add new tools and also update the other configuration parameters as needed.
 
+#### Dark Mode Support
+
+The `ChatComponent` also supports dark mode based on the [Tailwind Concept](https://tailwindcss.com/docs/dark-mode).
+
 ### Conversation Option Resolver
 
 The **Conversation Option Resolver** is used to determine which conversation option should be used when initializing the assistant. It allows you to implement custom logic based on the current page or other factors to control whether an assistant should be displayed and how it should behave.
@@ -444,21 +448,66 @@ class Product extends Model implements ContextModelInterface
 
 ### Tool Calling
 
-Of course, there's also the flow backwards from the chat to your application, so that the assistant can access your application. All you need to do is expose an API, which can be defined or described by an OpenAPI schema, and create within the Assistant Engine a new tool, and connect your assistant to the tool. Then, the assistant can perform operations on this API (eg. CRUD).
+Of course, there's also the flow backwards from the chat to your application, so that the assistant can access your application. All you need to do is implement the *AbstractOpenFunction* to create a new Tool and add it to your configuration file. Please read also the **[Open Function Repository](https://github.com/AssistantEngine/open-functions-core)**  to learn more about Open Functions.
 
-![Tool Calling Example](media/tool-calling.png)
+An example implementation could be:
+
+```php
+use AssistantEngine\OpenFunctions\Core\Contracts\AbstractOpenFunction;
+use AssistantEngine\OpenFunctions\Core\Models\Responses\TextResponseItem;
+use AssistantEngine\OpenFunctions\Core\Helpers\FunctionDefinition;
+use AssistantEngine\OpenFunctions\Core\Helpers\Parameter;
+
+class HelloWorldOpenFunction extends AbstractOpenFunction
+{
+    /**
+     * Generate function definitions.
+     *
+     * This method returns a schema that defines the "helloWorld" function.
+     */
+    public function generateFunctionDefinitions(): array
+    {
+        // Create a new function definition for helloWorld.
+        $functionDef = new FunctionDefinition(
+            'helloWorld',
+            'Returns a friendly greeting.'
+        );
+
+        // In this simple example, no parameters are required.
+        // If parameters were needed, you could add them like this:
+        // $functionDef->addParameter(Parameter::string("name")
+        //     ->description("Optional name to greet")
+        //     ->required());
+        
+        // Return the function schema as an array.
+        return [$functionDef->createFunctionDescription()];
+    }
+
+    /**
+     * The actual implementation of the function.
+     *
+     * @return TextResponseItem A text response containing the greeting.
+     */
+    public function helloWorld()
+    {
+        return new TextResponseItem("Hello, world!");
+    }
+}
+```
+
+### Events
 
 After the message is processed, the page component automatically refreshes so that you can see what the assistant updated for you. If you want, you can also manually listen to the event; just implement a listener on ```ChatComponent::EVENT_RUN_FINISHED``` and then you can process your custom logic.
 
 ```php
+use AssistantEngine\Filament\Chat\Components\ChatComponent;
+
 #[On(ChatComponent::EVENT_RUN_FINISHED)]
-public function onRunFinished()
+public function onRunFinished($messages)
 {
     // Handle run finished event
 }
 ```
-
-You can also connect your assistant to other APIs and let the assistant perform tasks for you in other systems or third-party systems, which are also connected to the assistant with the tool. You can learn more about tool usage in the official documentation. You can also connect your local APIs via a tunnel, such as ngrok, to the Assistant Engine and work locally without the need of deploying an api.
 
 ## One More Thing
 
