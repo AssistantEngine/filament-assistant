@@ -509,11 +509,22 @@ public function onRunFinished($messages)
 }
 ```
 
+## PRO Version
+
+For users looking for enhanced functionality, the **PRO Version** offers advanced features beyond the standard Filament Assistant capabilities:
+- **Tool Call Confirmations:** Require explicit user confirmation for all tool calls before they are executed, ensuring an extra layer of safety.
+- **RAG:** Index documents and make them accessible via a dedicated RAG tool.
+- **Conversational Memory:** Empower your assistants with conversational memory for improved context awareness and more natural interactions.
+- **Assistant Admin Panel:** Easily configure your assistants and tools.
+- **Monitoring and Analytics:** Benefit from built-in monitoring and analytic capabilities to keep track of performance and usage.
+
+If you are interested in the **PRO Version** or would like to learn more about its implementation, please contact us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com) for further details and access options.
+
 ## One More Thing
 
 We’ve created more repositories to make AI integration even simpler and more powerful! Check them out:
 
-- **[Open Function Core](https://github.com/AssistantEngine/open-functions-core)**: Open Functions provide a standardized way to implement and invoke functions for tool calling with large language models (LLMs).
+- **[Open Functions Core](https://github.com/AssistantEngine/open-functions-core)**: Open Functions provide a standardized way to implement and invoke functions for tool calling with large language models (LLMs).
 
 > We are a young startup aiming to make it easy for developers to add AI to their applications. We welcome feedback, questions, comments, and contributions. Feel free to contact us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com).
 
