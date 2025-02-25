@@ -66,7 +66,7 @@ After that you can directly talk to one of the Demo Assistants (eg. Frank) and h
 
 #### Dark Mode Support
 
-The `ChatComponent` also supports dark mode based on the [Tailwind Concept](https://tailwindcss.com/docs/dark-mode).
+The `Filament Assistant` also supports dark mode based on the [Tailwind Concept](https://tailwindcss.com/docs/dark-mode).
 
 ## Configuration
 
@@ -511,10 +511,9 @@ public function onRunFinished($messages)
 
 ## One More Thing
 
-We’ve created more repositories to make working with the Assistant Engine even easier! Check them out:
+We’ve created more repositories to make AI integration even simpler and more powerful! Check them out:
 
-- **[PHP SDK](https://github.com/AssistantEngine/php-sdk)**: The PHP SDK provides a convenient way to interact with the Assistant Engine API, allowing developers to create and manage conversations, tasks, and messages.
-- **[Laravel Assistant](https://github.com/AssistantEngine/laravel-assistant)**: The Laravel integration for adding conversational AI capabilities in your Laravel applications.
+- **[Open Function Repository](https://github.com/AssistantEngine/open-functions-core)**: Open Functions provide a standardized way to implement and invoke functions for tool calling with large language models (LLMs).
 
 > We are a young startup aiming to make it easy for developers to add AI to their applications. We welcome feedback, questions, comments, and contributions. Feel free to contact us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com).
 
