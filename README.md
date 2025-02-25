@@ -513,7 +513,7 @@ public function onRunFinished($messages)
 
 We’ve created more repositories to make AI integration even simpler and more powerful! Check them out:
 
-- **[Open Function Repository](https://github.com/AssistantEngine/open-functions-core)**: Open Functions provide a standardized way to implement and invoke functions for tool calling with large language models (LLMs).
+- **[Open Function Core](https://github.com/AssistantEngine/open-functions-core)**: Open Functions provide a standardized way to implement and invoke functions for tool calling with large language models (LLMs).
 
 > We are a young startup aiming to make it easy for developers to add AI to their applications. We welcome feedback, questions, comments, and contributions. Feel free to contact us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com).
 
