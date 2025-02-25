@@ -45,13 +45,13 @@ class YourPanelProvider extends PanelProvider
 }
 ```
 
-Now add you OPEN AI Key to your .env File
+Now add you *OPEN_AI_KEY* to your .env File
 
 ```
 OPEN_AI_KEY=your_openai_key
 ```
 
-Run the following command run the migrations, start a queue worker and building the theme:
+Run the migrations, start a queue worker and building the theme:
 
 ```bash
 php artisan migrate
@@ -185,7 +185,7 @@ return [
 
 ```
 
-Feel free to change the assistants, add new tools and also update the other configuration parameters.
+Feel free to change the assistants, add new tools and also update the other configuration parameters as needed.
 
 ### Conversation Option Resolver
 
