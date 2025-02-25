@@ -238,10 +238,13 @@ $options = new ConversationOption($assistantKey, $userId);
 $options->additionalRunData = [
     'your_context' => 'data'
 ]; // default []
+
 // add additional tools for the assistant independent of the configuration
 $options->additionalTools = ['weather']; // default []
+
 // arbitrary data without any function
 $options->metadata = ['foo' => 'bar']; // default [] 
+
 // if true the next time the conversation is recreated
 $options->recreate = false; // default false
 ```
@@ -458,50 +461,6 @@ public function onRunFinished()
 ```
 
 You can also connect your assistant to other APIs and let the assistant perform tasks for you in other systems or third-party systems, which are also connected to the assistant with the tool. You can learn more about tool usage in the official documentation. You can also connect your local APIs via a tunnel, such as ngrok, to the Assistant Engine and work locally without the need of deploying an api.
-
-### Creating Buttons to Trigger an AI Task
-
-You can also trigger an AI task with a Filament action. For example, if you want to generate a suggestion within a form, you can inject the `AssistantEngine` object directly and then trigger a task. It could be something like provide a suggestion, rework a text, or make sth. more concise — whatever task you have in mind. A task can also leverage tools.
-
-![AI Task Example](media/ai-task.png)
-
-Example:
-
-```php
-MarkdownEditor::make('description')
-    ->hintActions([
-        Action::make('suggestion')
-            ->button()
-            ->action(function (AssistantEngine $engine, Set $set, Get $get) use ($goals) {
-                $title = $get('title');
-
-                if (!$title) {
-                    Notification::make()
-                        ->title('At least a title must be set')
-                        ->danger()
-                        ->send();
-
-                    return;
-                }
-
-                $taskOptions = new TaskRunOption([
-                    'title' => $title,
-                    'object' => 'Product Goal',
-                    'existing_goals' => $goals->toArray()
-                ]);
-
-                $output = $engine->initiateTaskRunAndPoll(env("ASSISTANT_ENGINE_TASK_SUGGESTION_TEXT"), $taskOptions);
-
-                $set('description', $output->output);
-            })
-            ->icon('heroicon-o-bolt')
-            ->color(Color::Sky),
-    ])
-    ->maxLength(65535)
-    ->columnSpanFull();
-```
-
-This example demonstrates how you can provide an action to trigger an AI task, which interacts directly with the assistant engine to perform an operation based on the form data and return the result for further processing or to suggest updates directly to the user.
 
 ## One More Thing
 
