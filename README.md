@@ -64,6 +64,10 @@ After that you can directly talk to one of the Demo Assistants (eg. Frank) and h
 
 ![Demo Assistant Example](media/demo-assistant.png)
 
+#### Dark Mode Support
+
+The `ChatComponent` also supports dark mode based on the [Tailwind Concept](https://tailwindcss.com/docs/dark-mode).
+
 ## Configuration
 
 You can publish the configuration file using the command below:
@@ -186,10 +190,6 @@ return [
 ```
 
 Feel free to change the assistants, add new tools and also update the other configuration parameters as needed.
-
-#### Dark Mode Support
-
-The `ChatComponent` also supports dark mode based on the [Tailwind Concept](https://tailwindcss.com/docs/dark-mode).
 
 ### Conversation Option Resolver
 
