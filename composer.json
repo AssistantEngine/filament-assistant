@@ -1,6 +1,6 @@
 {
     "name": "assistant-engine/filament-assistant",
-    "description": "A Filament package that integrates the Assistant Engine to enable AI features, bringing advanced assistant capabilities directly into Filament.",
+    "description": "A Filament Assistant package that enables AI features, bringing advanced assistant capabilities directly into Filament.",
     "keywords": [
         "assistant-engine",
         "laravel",
