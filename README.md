@@ -196,29 +196,28 @@ You can create a custom conversation option resolver by implementing the `Conver
 Example of the built-in Conversation Option Resolver:
 
 ```php
-<?php
+namespace AssistantEngine\Filament\Chat\Resolvers;
 
-namespace AssistantEngine\Filament\Resolvers;
-
-use AssistantEngine\Filament\Contracts\ConversationOptionResolverInterface;
-use AssistantEngine\SDK\Models\Options\ConversationOption;
+use AssistantEngine\Filament\Chat\Contracts\ConversationOptionResolverInterface;
+use AssistantEngine\Filament\Chat\Models\ConversationOption;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Config;
 
 class ConversationOptionResolver implements ConversationOptionResolverInterface
 {
     public function resolve(Page $page): ?ConversationOption
     {
-        $assistantKey = config('assistant-engine.filament-assistant.conversation-option.assistant-key');
+        $assistantKey = Config::get('filament-assistant.default_assistant');
 
         if (!$assistantKey) {
             throw new \Exception('assistant-key must be set');
         }
 
-        $option = new ConversationOption($assistantKey, [
-            'user_id' => auth()->check() ? auth()->user()->id : null
-        ]);
+        if (!auth()->check()) {
+            return null;
+        }
 
-        return $option;
+        return new ConversationOption($assistantKey, auth()->user()->id);
     }
 }
 ```
@@ -230,28 +229,30 @@ You can also customize the resolver logic to adapt to different pages or user ro
 The `ConversationOption` object allows you to configure how a conversation is created or retrieved. The available fields include:
 
 ```php
-use AssistantEngine\SDK\Models\Options\ConversationOption;
+namespace AssistantEngine\Filament\Chat\Models\ConversationOption;
 
 // Create a new ConversationOption
-$options = new ConversationOption('assistant_key', [
-    'user_id' => 'user123',
-    'subject_id' => 'subject456',
-    'title' => 'New Conversation',
-    'context' => ['topic' => 'tech support'],
-    'additional_data' => ['foo' => 'bar'],
-    'recreate' => true,
-]);
+$options = new ConversationOption($assistantKey, $userId);
+
+// arbitrary data you want to pass to the llm
+$options->additionalRunData = [
+    'your_context' => 'data'
+]; // default []
+// add additional tools for the assistant independent of the configuration
+$options->additionalTools = ['weather']; // default []
+// arbitrary data without any function
+$options->metadata = ['foo' => 'bar']; // default [] 
+// if true the next time the conversation is recreated
+$options->recreate = false; // default false
 ```
 
-- **assistant_key** (required): Unique key identifying the assistant.
-- **user_id** (optional): ID of the user associated with the conversation, allowing multiple users to have different conversations with the same assistant.
-- **subject_id** (optional): ID of a specific subject, enabling a user to have separate conversations with the assistant about different topics.
-- **title** (optional): Title of the conversation, used solely for client purposes.
-- **context** (optional): Arbitrary data to provide context to the conversation. This context is included with the conversation data sent to the LLM.
-- **additional_data** (optional): Data intended for the front-end or client application, allowing additional operations based on its content.
+- **assistantKey** (required): Unique key identifying the assistant.
+- **userId** (required): ID of the user associated with the conversation, allowing multiple users to have different conversations with the same assistant.
+- **additionalRunData** (optional): Arbitrary data to provide context to the conversation. This context is included with the conversation data sent to the LLM.
+- **metadata** (optional): Data intended for the front-end or client application, allowing additional operations based on its content.
 - **recreate** (optional): If set to true, recreates the conversation, deactivating the previous one.
 
-> Note: The Assistant Engine will attempt to locate an existing conversation based on the combination of `assistant_key`, `user_id`, and `subject_id`. If a match is found, that conversation will be retrieved; otherwise, a new one will be created.
+> Note: The Filament Assistant will attempt to locate an existing conversation based on the combination of `assistantKey`, `userId`. If a match is found, that conversation will be retrieved; otherwise, a new one will be created.
 
 ### Context Resolver
 
