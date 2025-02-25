@@ -1,6 +1,6 @@
-# Assistant Engine for Filament
+# Filament Assistant
 
-The [Assistant Engine](https://www.assistant-engine.com/) for Filament makes it easy to add conversational AI capabilities directly into Laravel Filament projects. It includes a chat sidebar, context resolver, connection to 3rd party tools and the possibility to create interactive buttons that enhance user interaction by offering AI support within the Filament panel.
+The Filament Assistant Plugin by [Assistant Engine](https://www.assistant-engine.com/) makes it very easy to add conversational AI capabilities directly into Laravel Filament projects. It includes a chat sidebar, context resolver and the possibility to connect to 3rd party tools.
 
 ## Requirements
 
@@ -9,26 +9,13 @@ The [Assistant Engine](https://www.assistant-engine.com/) for Filament makes it 
 - **Filament**: (See [Filament Installation Guide](https://filamentphp.com/docs/3.x/panels/installation))
 - **Filament Custom Theme**: (See [Installation Guide](https://filamentphp.com/docs/3.x/panels/themes#creating-a-custom-theme))
 - **OpenAI API Key**: (See [OpenAI Documentation](https://platform.openai.com/docs/api-reference/authentication))
-- **Assistant Engine API Key**: (See [Assistant Engine Documentation](https://docs.assistant-engine.com/docs/projects#api-key))
-
-> **Important Notice**: Both an OpenAI API key and an Assistant Engine API key are required to use this package. Ensure these keys are configured correctly by following the respective documentation linked above.
-
-## Documentation
-
-The official documentation for the Assistant Engine can be found [here](https://docs.assistant-engine.com/docs). Learn more about assistants, tasks, tools, and how to connect other third-party APIs.
 
 ## Installation
 
-You can install the Assistant Engine for Filament via Composer:
+You can install Filament Assistant via Composer:
 
 ```bash
 composer require assistant-engine/filament-assistant
-```
-
-Then, publish the configuration file using the command below:
-
-```bash
-php artisan filament-assistant:publish-config
 ```
 
 After installing the plugin, follow the instructions to create a [custom theme](https://filamentphp.com/docs/3.x/panels/themes#creating-a-custom-theme) and add the following lines to your new theme's `tailwind.config.js`:
@@ -38,7 +25,6 @@ After installing the plugin, follow the instructions to create a [custom theme](
 export default {
     content: [
         './vendor/assistant-engine/filament-assistant/resources/**/*.blade.php',
-        './vendor/assistant-engine/laravel-assistant/resources/**/*.blade.php',
     ]
 };
 ```
@@ -59,100 +45,151 @@ class YourPanelProvider extends PanelProvider
 }
 ```
 
-Run the following command for development:
+Now add you *OPEN_AI_KEY* to your .env File
+
+```
+OPEN_AI_KEY=your_openai_key
+```
+
+Run the migrations, start a queue worker and building the theme:
 
 ```bash
+php artisan migrate
+php artisan queue:work
+
 npm run dev
 ```
 
+After that you can directly talk to one of the Demo Assistants (eg. Frank) and have a conversation about food delivery :)
+
+![Demo Assistant Example](media/demo-assistant.png)
+
+#### Dark Mode Support
+
+The `Filament Assistant` also supports dark mode based on the [Tailwind Concept](https://tailwindcss.com/docs/dark-mode).
+
 ## Configuration
 
-After publishing the configuration, you can find it in `config/assistant-engine.php`. Customize it to set your API keys and other settings.
+You can publish the configuration file using the command below:
 
-The **chat** configuration section is identical to the description provided in the [Laravel Assistant repository](https://github.com/AssistantEngine/laravel-assistant). Refer to it for more detailed information.
+```bash
+php artisan vendor:publish --tag=filament-assistant-config
+```
+
+After publishing the configuration, you can find it in `config/assistant-engine.php`:
 
 ```php
 return [
-    'api-url' => env('ASSISTANT_ENGINE_API', 'https://api.assistant-engine.com/v1/'),
-    'api-key' => env('ASSISTANT_ENGINE_TOKEN'),
-    'llm-provider-key' => env('OPENAI_API_KEY'),
+    // Set the default chat driver class. You can override this in your local config.
+    'chat_driver' => \AssistantEngine\Filament\Chat\Driver\DefaultChatDriver::class,
+    'conversation_resolver' => \AssistantEngine\Filament\Chat\Resolvers\ConversationOptionResolver::class,
+    'context_resolver' => \AssistantEngine\Filament\Chat\Resolvers\ContextResolver::class,
+    'run_processor' => \AssistantEngine\Filament\Runs\Services\RunProcessorService::class,
 
-    "chat" => [
-        "render-assistant-message-as-markdown" => true,
+    'default_run_queue' => env('DEFAULT_RUN_QUEUE', 'default'),
+    'default_assistant' => env('DEFAULT_ASSISTANT_KEY', 'food-delivery'),
 
-        "disable-assistant-icon" => false,
-        "disable-user-input" => false,
+    // Assistants configuration: each assistance is identified by a key.
+    // Each assistance has a name, a instruction, and a reference to an LLM connection.
+    'assistants' => [
+        // Example assistance configuration with key "default"
+        'default' => [
+            'name'              => 'Genius',
+            'description'       => 'Your friendly assistant ready to help with any question.',
+            'instruction'       => 'You are a helpful assistant.',
+            'llm_connection'    => 'openai', // This should correspond to an entry in the llm_connections section.
+            'model'             => 'gpt-4o',
+            // List the tool identifiers to load for this assistant.
+            'tools'             => ['weather']
+        ],
+        'food-delivery' => [
+            'name'              => 'Frank',
+            'description'       => 'Franks here to help to get you a nice meal',
+            'instruction'       => 'Your are Frank a funny person who loves to help customers find the right food.',
+            'llm_connection'    => 'openai', // This should correspond to an entry in the llm_connections section.
+            'model'             => 'gpt-4o',
+            // List the tool identifiers to load for this assistant.
+            'tools'             => ['pizza', 'burger']
+        ],
+    ],
 
-        "open-ai-recorder" => [
-            "activate" => true,
-            "open-ai-key" => env('OPENAI_API_KEY'),
-            "language" => "en"
+    // LLM Connections configuration: each connection is identified by an identifier.
+    // Each connection must include an URL and an API key.
+    'llm_connections' => [
+        // Example LLM connection configuration with identifier "openai"
+        'openai' => [
+            'url'     => 'https://api.openai.com/v1/',
+            'api_key' => env('OPEN_AI_KEY'),
         ]
     ],
-    'filament-assistant' => [
-        'button' => [
-            'show' => true,
-            'options' => [
-                'label' => 'Assistant',
-                'size' => \Filament\Support\Enums\ActionSize::ExtraLarge,
-                'color' => \Filament\Support\Colors\Color::Sky,
-                'icon' => 'heroicon-o-chat-bubble-bottom-center-text'
-            ]
-        ],
 
-        'conversation-option' => [
-            'assistant-key' => env('ASSISTANT_ENGINE_ASSISTANT_KEY'),
-            'conversation-resolver' => \AssistantEngine\Filament\Resolvers\ConversationOptionResolver::class,
-            'context-resolver' => \AssistantEngine\Filament\Resolvers\ContextResolver::class
+    // Tools configuration: each tool is identified by a key.
+    'tools' => [
+        'weather' => [
+            'namespace'   => 'weather',
+            'description' => 'Function to get informations about the weather.',
+            'tool'        => function () {
+                return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherOpenFunction();
+            },
         ],
+        'pizza' => [
+            'namespace'   => 'pizza',
+            'description' => 'This is a nice pizza place',
+            'tool'        => function () {
+                $pizza = [
+                    'Margherita',
+                    'Pepperoni',
+                    'Hawaiian',
+                    'Veggie',
+                    'BBQ Chicken',
+                    'Meat Lovers'
+                ];
+                return new \AssistantEngine\OpenFunctions\Core\Examples\DeliveryOpenFunction($pizza);
+            },
+        ],
+        'burger' => [
+            'namespace'   => 'burger',
+            'description' => 'This is a nice burger place',
+            'tool'        => function () {
 
-        'sidebar' => [
-            'render' => true,
-            'width' => 500,
-            'show-without-trigger' => false
+                $burgers = [
+                    'Classic Burger',
+                    'Cheese Burger',
+                    'Bacon Burger',
+                    'Veggie Burger',
+                    'Double Burger'
+                ];
+                return new \AssistantEngine\OpenFunctions\Core\Examples\DeliveryOpenFunction($burgers);
+            },
         ],
-    ]
+    ],
+
+    'button' => [
+        'show' => true,
+        'options' => [
+            'label' => 'Food Delivery',
+            'size' => \Filament\Support\Enums\ActionSize::ExtraLarge,
+            'color' => \Filament\Support\Colors\Color::Sky,
+            'icon' => 'heroicon-o-chat-bubble-bottom-center-text'
+        ]
+    ],
+
+    // Sidebar configuration
+    'sidebar' => [
+        // Whether the sidebar is enabled
+        'enabled' => true,
+        // If set to true, the sidebar will be open by default on load.
+        // Using 'open_by_default' instead of 'auto_visible'
+        'open_by_default' => false,
+        // The width of the sidebar, defined as a CSS dimension.
+        // must be an integer
+        'width' => 400,
+    ],
 ];
-```
-
-### Configuration Fields Description
-
-#### Filament Assistant Configuration
-
-- **button**: Controls whether the assistant button is shown in the bottom right corner.
-    - **show**: Boolean that determines if the assistant button is displayed.
-    - **options**: Customization options for the button.
-        - **label**: The label text displayed on the button.
-        - **size**: The size of the button, e.g., `ExtraLarge`.
-        - **color**: The color of the button, e.g., `Sky`.
-        - **icon**: The icon displayed on the button.
-
-- **conversation-option**: Configures conversation behavior.
-    - **assistant-key**: The key for the assistant, which the user must create in the Assistant Engine.
-    - **conversation-resolver**: Class responsible for resolving the conversation option based on defined rules.
-    - **context-resolver**: Resolves context models automatically.
-
-- **sidebar**: Configures the sidebar that displays the assistant conversation.
-    - **render**: Boolean that controls whether the sidebar is rendered.
-    - **width**: The width of the sidebar in pixels.
-    - **show-without-trigger**: Boolean that controls whether the sidebar is automatically shown when a conversation option is available.
-
-## Example `.env` File
-
-Add the following environment variables to your `.env` file to configure the Assistant Engine:
 
 ```
-ASSISTANT_ENGINE_API=https://api.assistant-engine.com/v1/
-ASSISTANT_ENGINE_TOKEN=your_assistant_engine_api_key
-ASSISTANT_ENGINE_ASSISTANT_KEY=your_default_assistant_key
-OPENAI_API_KEY=your_openai_api_key
-```
 
-## Usage
-
-After you installed the plugin and logged into your filament panel you will have the assistant button available at the bottom of the page:
-
-![Custom Pages Example](media/install-2.png)
+Feel free to change the assistants, add new tools and also update the other configuration parameters as needed.
 
 ### Conversation Option Resolver
 
@@ -163,29 +200,28 @@ You can create a custom conversation option resolver by implementing the `Conver
 Example of the built-in Conversation Option Resolver:
 
 ```php
-<?php
+namespace AssistantEngine\Filament\Chat\Resolvers;
 
-namespace AssistantEngine\Filament\Resolvers;
-
-use AssistantEngine\Filament\Contracts\ConversationOptionResolverInterface;
-use AssistantEngine\SDK\Models\Options\ConversationOption;
+use AssistantEngine\Filament\Chat\Contracts\ConversationOptionResolverInterface;
+use AssistantEngine\Filament\Chat\Models\ConversationOption;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Config;
 
 class ConversationOptionResolver implements ConversationOptionResolverInterface
 {
     public function resolve(Page $page): ?ConversationOption
     {
-        $assistantKey = config('assistant-engine.filament-assistant.conversation-option.assistant-key');
+        $assistantKey = Config::get('filament-assistant.default_assistant');
 
         if (!$assistantKey) {
             throw new \Exception('assistant-key must be set');
         }
 
-        $option = new ConversationOption($assistantKey, [
-            'user_id' => auth()->check() ? auth()->user()->id : null
-        ]);
+        if (!auth()->check()) {
+            return null;
+        }
 
-        return $option;
+        return new ConversationOption($assistantKey, auth()->user()->id);
     }
 }
 ```
@@ -197,34 +233,39 @@ You can also customize the resolver logic to adapt to different pages or user ro
 The `ConversationOption` object allows you to configure how a conversation is created or retrieved. The available fields include:
 
 ```php
-use AssistantEngine\SDK\Models\Options\ConversationOption;
+namespace AssistantEngine\Filament\Chat\Models\ConversationOption;
 
 // Create a new ConversationOption
-$options = new ConversationOption('assistant_key', [
-    'user_id' => 'user123',
-    'subject_id' => 'subject456',
-    'title' => 'New Conversation',
-    'context' => ['topic' => 'tech support'],
-    'additional_data' => ['foo' => 'bar'],
-    'recreate' => true,
-]);
+$options = new ConversationOption($assistantKey, $userId);
+
+// arbitrary data you want to pass to the llm
+$options->additionalRunData = [
+    'your_context' => 'data'
+]; // default []
+
+// add additional tools for the assistant independent of the configuration
+$options->additionalTools = ['weather']; // default []
+
+// arbitrary data without any function
+$options->metadata = ['foo' => 'bar']; // default [] 
+
+// if true the next time the conversation is recreated
+$options->recreate = false; // default false
 ```
 
-- **assistant_key** (required): Unique key identifying the assistant.
-- **user_id** (optional): ID of the user associated with the conversation, allowing multiple users to have different conversations with the same assistant.
-- **subject_id** (optional): ID of a specific subject, enabling a user to have separate conversations with the assistant about different topics.
-- **title** (optional): Title of the conversation, used solely for client purposes.
-- **context** (optional): Arbitrary data to provide context to the conversation. This context is included with the conversation data sent to the LLM.
-- **additional_data** (optional): Data intended for the front-end or client application, allowing additional operations based on its content.
+- **assistantKey** (required): Unique key identifying the assistant.
+- **userId** (required): ID of the user associated with the conversation, allowing multiple users to have different conversations with the same assistant.
+- **additionalRunData** (optional): Arbitrary data to provide context to the conversation. This context is included with the conversation data sent to the LLM.
+- **metadata** (optional): Data intended for the front-end or client application, allowing additional operations based on its content.
 - **recreate** (optional): If set to true, recreates the conversation, deactivating the previous one.
 
-> Note: The Assistant Engine will attempt to locate an existing conversation based on the combination of `assistant_key`, `user_id`, and `subject_id`. If a match is found, that conversation will be retrieved; otherwise, a new one will be created.
+> Note: The Filament Assistant will attempt to locate an existing conversation based on the combination of `assistantKey`, `userId`. If a match is found, that conversation will be retrieved; otherwise, a new one will be created.
 
 ### Context Resolver
 
 The **Context Resolver** is responsible for resolving context models that are visible on the page and providing them to the assistant. This helps the assistant understand the context of the current page and allows it to access relevant information during the conversation.
 
-![Custom Pages Example](media/context-resolver.png)
+![Custom Pages Example](media/context-resolver-2.png)
 
 The default **Context Resolver** (`ContextResolver`) tries to collect models related to the page, such as records or list items, and injects them into the context of the `ConversationOption` object.
 
@@ -233,9 +274,10 @@ Example of a Context Resolver:
 ```php
 <?php
 
-namespace AssistantEngine\Filament\Resolvers;
+namespace AssistantEngine\Filament\Chat\Resolvers;
 
-use AssistantEngine\Filament\Contracts\ContextResolverInterface;
+use AssistantEngine\Filament\Chat\Contracts\ContextModelInterface;
+use AssistantEngine\Filament\Chat\Contracts\ContextResolverInterface;
 use Filament\Pages\Page;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Pages\ManageRelatedRecords;
@@ -278,8 +320,6 @@ The **Context Resolver** automatically gathers information about the page and it
 
 Sometimes you have pages which are fully custom, and where the standard Context Resolver doesn't get all the models visible to the customer. In this case, you can either implement your own Context Resolver based on the interface, or you can extend it, like in the example below, to add more context. You can extend the Context Resolver and, based on different pages, inject other contexts, like models or the description of the page, to give the LLM even more context about what the user is seeing right now.
 
-![Custom Pages Example](media/custom-pages-2.png)
-
 Example of a Custom Context Resolver:
 
 ```php
@@ -292,7 +332,7 @@ use App\Modules\Product\Models\ProductGoal;
 use App\Modules\Product\Models\ProductIdea;
 use Filament\Pages\Page;
 
-class ContextResolver extends \AssistantEngine\Filament\Resolvers\ContextResolver
+class ContextResolver extends AssistantEngine\Filament\Chat\Resolvers\ContextResolver
 {
     public function resolve(Page $page): array
     {
@@ -325,14 +365,13 @@ The standard resolving mechanism for models is to transform them to arrays. But 
 ```php
 <?php
 
-namespace AssistantEngine\Filament\Contracts;
-
-use Filament\Pages\Page;
+namespace AssistantEngine\Filament\Chat\Contracts;
 
 interface ContextModelInterface
 {
     public static function resolveModels(array $models): array;
 }
+
 ```
 
 There is also a trait implementing this interface called **Context Model**, where you can group models from the same class inside a data object and provide the LLM with metadata as well as exclude properties from the model itself. This ensures that sensitive data is not sent to the LLM directly, but you can adjust it to your needs.
@@ -340,9 +379,9 @@ There is also a trait implementing this interface called **Context Model**, wher
 ```php
 <?php
 
-namespace AssistantEngine\Filament\Traits;
+namespace AssistantEngine\Filament\Chat\Traits;
 
-use AssistantEngine\Filament\Resolvers\ContextModelResolver;
+use AssistantEngine\Filament\Chat\Resolvers\ContextModelResolver;
 
 trait ContextModel
 {
@@ -377,7 +416,7 @@ trait ContextModel
 This Trait you can implement in your Model Classes and overwrite the defined methods if needed:
 
 ```php
-namespace AssistantEngine\Filament\Contracts\ContextModelInterface;
+namespace AssistantEngine\Filament\Chat\Contracts\ContextModelInterface;
 
 #[Schema(
     schema: "Product",
@@ -409,74 +448,93 @@ class Product extends Model implements ContextModelInterface
 
 ### Tool Calling
 
-Of course, there's also the flow backwards from the chat to your application, so that the assistant can access your application. All you need to do is expose an API, which can be defined or described by an OpenAPI schema, and create within the Assistant Engine a new tool, and connect your assistant to the tool. Then, the assistant can perform operations on this API (eg. CRUD).
+Of course, there's also the flow backwards from the chat to your application, so that the assistant can access your application. All you need to do is implement the *AbstractOpenFunction* to create a new Tool and add it to your configuration file. Please read also the **[Open Function Repository](https://github.com/AssistantEngine/open-functions-core)**  to learn more about Open Functions.
 
-![Tool Calling Example](media/tool-calling.png)
+An example implementation could be:
+
+```php
+use AssistantEngine\OpenFunctions\Core\Contracts\AbstractOpenFunction;
+use AssistantEngine\OpenFunctions\Core\Models\Responses\TextResponseItem;
+use AssistantEngine\OpenFunctions\Core\Helpers\FunctionDefinition;
+use AssistantEngine\OpenFunctions\Core\Helpers\Parameter;
+
+class HelloWorldOpenFunction extends AbstractOpenFunction
+{
+    /**
+     * Generate function definitions.
+     *
+     * This method returns a schema that defines the "helloWorld" function.
+     */
+    public function generateFunctionDefinitions(): array
+    {
+        // Create a new function definition for helloWorld.
+        $functionDef = new FunctionDefinition(
+            'helloWorld',
+            'Returns a friendly greeting.'
+        );
+
+        // In this simple example, no parameters are required.
+        // If parameters were needed, you could add them like this:
+        // $functionDef->addParameter(Parameter::string("name")
+        //     ->description("Optional name to greet")
+        //     ->required());
+        
+        // Return the function schema as an array.
+        return [$functionDef->createFunctionDescription()];
+    }
+
+    /**
+     * The actual implementation of the function.
+     *
+     * @return TextResponseItem A text response containing the greeting.
+     */
+    public function helloWorld()
+    {
+        return new TextResponseItem("Hello, world!");
+    }
+}
+```
+
+### Events
 
 After the message is processed, the page component automatically refreshes so that you can see what the assistant updated for you. If you want, you can also manually listen to the event; just implement a listener on ```ChatComponent::EVENT_RUN_FINISHED``` and then you can process your custom logic.
 
 ```php
+use AssistantEngine\Filament\Chat\Components\ChatComponent;
+
 #[On(ChatComponent::EVENT_RUN_FINISHED)]
-public function onRunFinished()
+public function onRunFinished($messages)
 {
     // Handle run finished event
 }
 ```
 
-You can also connect your assistant to other APIs and let the assistant perform tasks for you in other systems or third-party systems, which are also connected to the assistant with the tool. You can learn more about tool usage in the official documentation. You can also connect your local APIs via a tunnel, such as ngrok, to the Assistant Engine and work locally without the need of deploying an api.
+## More Repositories
 
-### Creating Buttons to Trigger an AI Task
+We’ve created more repositories to make AI integration even simpler and more powerful! Check them out:
 
-You can also trigger an AI task with a Filament action. For example, if you want to generate a suggestion within a form, you can inject the `AssistantEngine` object directly and then trigger a task. It could be something like provide a suggestion, rework a text, or make sth. more concise — whatever task you have in mind. A task can also leverage tools.
-
-![AI Task Example](media/ai-task.png)
-
-Example:
-
-```php
-MarkdownEditor::make('description')
-    ->hintActions([
-        Action::make('suggestion')
-            ->button()
-            ->action(function (AssistantEngine $engine, Set $set, Get $get) use ($goals) {
-                $title = $get('title');
-
-                if (!$title) {
-                    Notification::make()
-                        ->title('At least a title must be set')
-                        ->danger()
-                        ->send();
-
-                    return;
-                }
-
-                $taskOptions = new TaskRunOption([
-                    'title' => $title,
-                    'object' => 'Product Goal',
-                    'existing_goals' => $goals->toArray()
-                ]);
-
-                $output = $engine->initiateTaskRunAndPoll(env("ASSISTANT_ENGINE_TASK_SUGGESTION_TEXT"), $taskOptions);
-
-                $set('description', $output->output);
-            })
-            ->icon('heroicon-o-bolt')
-            ->color(Color::Sky),
-    ])
-    ->maxLength(65535)
-    ->columnSpanFull();
-```
-
-This example demonstrates how you can provide an action to trigger an AI task, which interacts directly with the assistant engine to perform an operation based on the form data and return the result for further processing or to suggest updates directly to the user.
-
-## One More Thing
-
-We’ve created more repositories to make working with the Assistant Engine even easier! Check them out:
-
-- **[PHP SDK](https://github.com/AssistantEngine/php-sdk)**: The PHP SDK provides a convenient way to interact with the Assistant Engine API, allowing developers to create and manage conversations, tasks, and messages.
-- **[Laravel Assistant](https://github.com/AssistantEngine/laravel-assistant)**: The Laravel integration for adding conversational AI capabilities in your Laravel applications.
+- **[Open Functions Core](https://github.com/AssistantEngine/open-functions-core)**: Open Functions provide a standardized way to implement and invoke functions for tool calling with large language models (LLMs).
 
 > We are a young startup aiming to make it easy for developers to add AI to their applications. We welcome feedback, questions, comments, and contributions. Feel free to contact us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com).
+
+
+## PRO Version
+
+For users looking for enhanced functionality, the **PRO Version** offers advanced features beyond the standard Filament Assistant capabilities:
+- **Tool Call Confirmations:** Require explicit user confirmation for specific tool calls before they are executed, ensuring an extra layer of safety.
+- **RAG:** Index documents and make them accessible via a dedicated RAG tool.
+- **Conversational Memory:** Empower your assistants with conversational memory for improved context awareness and more natural interactions.
+- **Assistant Admin Panel:** Easily configure your assistants and tools.
+- **Monitoring and Analytics:** Benefit from built-in monitoring and analytic capabilities to keep track of performance and usage.
+
+If you are interested in the **PRO Version** or would like to learn more about its implementation, please contact us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com) for further details and access options.
+
+## Consultancy & Support
+
+Do you need assistance integrating Filament Assistant into your Laravel Filament application, or help setting it up?  
+We offer consultancy services to help you get the most out of our package, whether you’re just getting started or looking to optimize an existing setup.
+
+Reach out to us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com).
 
 ## Contributing
 
