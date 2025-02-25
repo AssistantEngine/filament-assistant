@@ -520,6 +520,13 @@ For users looking for enhanced functionality, the **PRO Version** offers advance
 
 If you are interested in the **PRO Version** or would like to learn more about its implementation, please contact us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com) for further details and access options.
 
+## Consultancy & Support
+
+Do you need assistance integrating Filament Assistant into your Laravel Filament application, or help setting it up?  
+We offer consultancy services to help you get the most out of our package, whether you’re just getting started or looking to optimize an existing setup.
+
+Reach out to us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com).
+
 ## One More Thing
 
 We’ve created more repositories to make AI integration even simpler and more powerful! Check them out:
