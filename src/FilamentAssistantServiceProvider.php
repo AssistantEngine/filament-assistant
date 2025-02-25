@@ -30,7 +30,7 @@ class FilamentAssistantServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('filament-assistant')
-            ->hasConfigFile("filament-assistant")
+            ->hasConfigFile()
             ->hasViews()
             ->discoversMigrations()
             ->runsMigrations();
