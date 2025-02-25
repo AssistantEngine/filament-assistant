@@ -527,14 +527,6 @@ We offer consultancy services to help you get the most out of our package, wheth
 
 Reach out to us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com).
 
-## One More Thing
-
-We’ve created more repositories to make AI integration even simpler and more powerful! Check them out:
-
-- **[Open Functions Core](https://github.com/AssistantEngine/open-functions-core)**: Open Functions provide a standardized way to implement and invoke functions for tool calling with large language models (LLMs).
-
-> We are a young startup aiming to make it easy for developers to add AI to their applications. We welcome feedback, questions, comments, and contributions. Feel free to contact us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com).
-
 ## Contributing
 
 We welcome contributions from the community! Feel free to submit pull requests, open issues, and help us improve the package.
@@ -542,3 +534,11 @@ We welcome contributions from the community! Feel free to submit pull requests, 
 ## License
 
 This project is licensed under the MIT License. Please see [License File](LICENSE.md) for more information.
+
+## One More Thing
+
+We’ve created more repositories to make AI integration even simpler and more powerful! Check them out:
+
+- **[Open Functions Core](https://github.com/AssistantEngine/open-functions-core)**: Open Functions provide a standardized way to implement and invoke functions for tool calling with large language models (LLMs).
+
+> We are a young startup aiming to make it easy for developers to add AI to their applications. We welcome feedback, questions, comments, and contributions. Feel free to contact us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com).
