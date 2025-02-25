@@ -1,6 +1,6 @@
-# Assistant Engine for Filament
+# Filament Assistant
 
-The [Assistant Engine](https://www.assistant-engine.com/) for Filament makes it easy to add conversational AI capabilities directly into Laravel Filament projects. It includes a chat sidebar, context resolver, connection to 3rd party tools and the possibility to create interactive buttons that enhance user interaction by offering AI support within the Filament panel.
+The Filament Assistant Plugin by [Assistant Engine](https://www.assistant-engine.com/) makes it very easy to add conversational AI capabilities directly into Laravel Filament projects. It includes a chat sidebar, context resolver and the possibility to connect to 3rd party tools.
 
 ## Requirements
 
@@ -9,26 +9,13 @@ The [Assistant Engine](https://www.assistant-engine.com/) for Filament makes it 
 - **Filament**: (See [Filament Installation Guide](https://filamentphp.com/docs/3.x/panels/installation))
 - **Filament Custom Theme**: (See [Installation Guide](https://filamentphp.com/docs/3.x/panels/themes#creating-a-custom-theme))
 - **OpenAI API Key**: (See [OpenAI Documentation](https://platform.openai.com/docs/api-reference/authentication))
-- **Assistant Engine API Key**: (See [Assistant Engine Documentation](https://docs.assistant-engine.com/docs/projects#api-key))
-
-> **Important Notice**: Both an OpenAI API key and an Assistant Engine API key are required to use this package. Ensure these keys are configured correctly by following the respective documentation linked above.
-
-## Documentation
-
-The official documentation for the Assistant Engine can be found [here](https://docs.assistant-engine.com/docs). Learn more about assistants, tasks, tools, and how to connect other third-party APIs.
 
 ## Installation
 
-You can install the Assistant Engine for Filament via Composer:
+You can install Filament Assistant via Composer:
 
 ```bash
 composer require assistant-engine/filament-assistant
-```
-
-Then, publish the configuration file using the command below:
-
-```bash
-php artisan vendor:publish --tag=filament-assistant-config
 ```
 
 After installing the plugin, follow the instructions to create a [custom theme](https://filamentphp.com/docs/3.x/panels/themes#creating-a-custom-theme) and add the following lines to your new theme's `tailwind.config.js`:
@@ -58,100 +45,147 @@ class YourPanelProvider extends PanelProvider
 }
 ```
 
-Run the following command for development:
+Now add you OPEN AI Key to your .env File
+
+```
+OPEN_AI_KEY=your_openai_key
+```
+
+Run the following command run the migrations, start a queue worker and building the theme:
 
 ```bash
+php artisan migrate
+php artisan queue:work
+
 npm run dev
 ```
 
+After that you can directly talk to one of the Demo Assistants (eg. Frank) and have a conversation about food delivery :)
+
+![Demo Assistant Example](media/demo-assistant.png)
+
 ## Configuration
 
-After publishing the configuration, you can find it in `config/assistant-engine.php`. Customize it to set your API keys and other settings.
+You can publish the configuration file using the command below:
 
-The **chat** configuration section is identical to the description provided in the [Laravel Assistant repository](https://github.com/AssistantEngine/laravel-assistant). Refer to it for more detailed information.
+```bash
+php artisan vendor:publish --tag=filament-assistant-config
+```
+
+After publishing the configuration, you can find it in `config/assistant-engine.php`:
 
 ```php
 return [
-    'api-url' => env('ASSISTANT_ENGINE_API', 'https://api.assistant-engine.com/v1/'),
-    'api-key' => env('ASSISTANT_ENGINE_TOKEN'),
-    'llm-provider-key' => env('OPENAI_API_KEY'),
+    // Set the default chat driver class. You can override this in your local config.
+    'chat_driver' => \AssistantEngine\Filament\Chat\Driver\DefaultChatDriver::class,
+    'conversation_resolver' => \AssistantEngine\Filament\Chat\Resolvers\ConversationOptionResolver::class,
+    'context_resolver' => \AssistantEngine\Filament\Chat\Resolvers\ContextResolver::class,
+    'run_processor' => \AssistantEngine\Filament\Runs\Services\RunProcessorService::class,
 
-    "chat" => [
-        "render-assistant-message-as-markdown" => true,
+    'default_run_queue' => env('DEFAULT_RUN_QUEUE', 'default'),
+    'default_assistant' => env('DEFAULT_ASSISTANT_KEY', 'food-delivery'),
 
-        "disable-assistant-icon" => false,
-        "disable-user-input" => false,
+    // Assistants configuration: each assistance is identified by a key.
+    // Each assistance has a name, a instruction, and a reference to an LLM connection.
+    'assistants' => [
+        // Example assistance configuration with key "default"
+        'default' => [
+            'name'              => 'Genius',
+            'description'       => 'Your friendly assistant ready to help with any question.',
+            'instruction'       => 'You are a helpful assistant.',
+            'llm_connection'    => 'openai', // This should correspond to an entry in the llm_connections section.
+            'model'             => 'gpt-4o',
+            // List the tool identifiers to load for this assistant.
+            'tools'             => ['weather']
+        ],
+        'food-delivery' => [
+            'name'              => 'Frank',
+            'description'       => 'Franks here to help to get you a nice meal',
+            'instruction'       => 'Your are Frank a funny person who loves to help customers find the right food.',
+            'llm_connection'    => 'openai', // This should correspond to an entry in the llm_connections section.
+            'model'             => 'gpt-4o',
+            // List the tool identifiers to load for this assistant.
+            'tools'             => ['pizza', 'burger']
+        ],
+    ],
 
-        "open-ai-recorder" => [
-            "activate" => true,
-            "open-ai-key" => env('OPENAI_API_KEY'),
-            "language" => "en"
+    // LLM Connections configuration: each connection is identified by an identifier.
+    // Each connection must include an URL and an API key.
+    'llm_connections' => [
+        // Example LLM connection configuration with identifier "openai"
+        'openai' => [
+            'url'     => 'https://api.openai.com/v1/',
+            'api_key' => env('OPEN_AI_KEY'),
         ]
     ],
-    'filament-assistant' => [
-        'button' => [
-            'show' => true,
-            'options' => [
-                'label' => 'Assistant',
-                'size' => \Filament\Support\Enums\ActionSize::ExtraLarge,
-                'color' => \Filament\Support\Colors\Color::Sky,
-                'icon' => 'heroicon-o-chat-bubble-bottom-center-text'
-            ]
-        ],
 
-        'conversation-option' => [
-            'assistant-key' => env('ASSISTANT_ENGINE_ASSISTANT_KEY'),
-            'conversation-resolver' => \AssistantEngine\Filament\Resolvers\ConversationOptionResolver::class,
-            'context-resolver' => \AssistantEngine\Filament\Resolvers\ContextResolver::class
+    // Tools configuration: each tool is identified by a key.
+    'tools' => [
+        'weather' => [
+            'namespace'   => 'weather',
+            'description' => 'Function to get informations about the weather.',
+            'tool'        => function () {
+                return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherOpenFunction();
+            },
         ],
+        'pizza' => [
+            'namespace'   => 'pizza',
+            'description' => 'This is a nice pizza place',
+            'tool'        => function () {
+                $pizza = [
+                    'Margherita',
+                    'Pepperoni',
+                    'Hawaiian',
+                    'Veggie',
+                    'BBQ Chicken',
+                    'Meat Lovers'
+                ];
+                return new \AssistantEngine\OpenFunctions\Core\Examples\DeliveryOpenFunction($pizza);
+            },
+        ],
+        'burger' => [
+            'namespace'   => 'burger',
+            'description' => 'This is a nice burger place',
+            'tool'        => function () {
 
-        'sidebar' => [
-            'render' => true,
-            'width' => 500,
-            'show-without-trigger' => false
+                $burgers = [
+                    'Classic Burger',
+                    'Cheese Burger',
+                    'Bacon Burger',
+                    'Veggie Burger',
+                    'Double Burger'
+                ];
+                return new \AssistantEngine\OpenFunctions\Core\Examples\DeliveryOpenFunction($burgers);
+            },
         ],
-    ]
+    ],
+
+    'button' => [
+        'show' => true,
+        'options' => [
+            'label' => 'Food Delivery',
+            'size' => \Filament\Support\Enums\ActionSize::ExtraLarge,
+            'color' => \Filament\Support\Colors\Color::Sky,
+            'icon' => 'heroicon-o-chat-bubble-bottom-center-text'
+        ]
+    ],
+
+    // Sidebar configuration
+    'sidebar' => [
+        // Whether the sidebar is enabled
+        'enabled' => true,
+        // If set to true, the sidebar will be open by default on load.
+        // Using 'open_by_default' instead of 'auto_visible'
+        'open_by_default' => false,
+        // The width of the sidebar, defined as a CSS dimension.
+        // must be an integer
+        'width' => 400,
+    ],
 ];
-```
-
-### Configuration Fields Description
-
-#### Filament Assistant Configuration
-
-- **button**: Controls whether the assistant button is shown in the bottom right corner.
-    - **show**: Boolean that determines if the assistant button is displayed.
-    - **options**: Customization options for the button.
-        - **label**: The label text displayed on the button.
-        - **size**: The size of the button, e.g., `ExtraLarge`.
-        - **color**: The color of the button, e.g., `Sky`.
-        - **icon**: The icon displayed on the button.
-
-- **conversation-option**: Configures conversation behavior.
-    - **assistant-key**: The key for the assistant, which the user must create in the Assistant Engine.
-    - **conversation-resolver**: Class responsible for resolving the conversation option based on defined rules.
-    - **context-resolver**: Resolves context models automatically.
-
-- **sidebar**: Configures the sidebar that displays the assistant conversation.
-    - **render**: Boolean that controls whether the sidebar is rendered.
-    - **width**: The width of the sidebar in pixels.
-    - **show-without-trigger**: Boolean that controls whether the sidebar is automatically shown when a conversation option is available.
-
-## Example `.env` File
-
-Add the following environment variables to your `.env` file to configure the Assistant Engine:
 
 ```
-ASSISTANT_ENGINE_API=https://api.assistant-engine.com/v1/
-ASSISTANT_ENGINE_TOKEN=your_assistant_engine_api_key
-ASSISTANT_ENGINE_ASSISTANT_KEY=your_default_assistant_key
-OPENAI_API_KEY=your_openai_api_key
-```
 
-## Usage
-
-After you installed the plugin and logged into your filament panel you will have the assistant button available at the bottom of the page:
-
-![Custom Pages Example](media/install-2.png)
+Feel free to change the assistants, add new tools and also update the other configuration parameters.
 
 ### Conversation Option Resolver
 
