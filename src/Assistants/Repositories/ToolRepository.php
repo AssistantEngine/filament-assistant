@@ -23,7 +23,7 @@ class ToolRepository
                     $toolIdentifier,
                     $toolDefinition['namespace'] ?? '',
                     $toolDefinition['description'] ?? '',
-                    $toolDefinition['tool'] 
+                    $toolDefinition['tool']
                 );
             }
         }
