@@ -71,4 +71,29 @@ class AssistantRepository
             $tools
         );
     }
+
+    /**
+     * Retrieve all configured Assistant instances.
+     *
+     * @return Assistant[]
+     */
+    public function getAllAssistants(): array
+    {
+        $assistantsConfig = Config::get('filament-assistant.assistants', []);
+        $assistants = [];
+
+        foreach ($assistantsConfig as $assistantKey => $assistantConfig) {
+            try {
+                $assistant = $this->getAssistantByKey($assistantKey);
+                if ($assistant !== null) {
+                    $assistants[$assistantKey] = $assistant;
+                }
+            } catch (\Exception $e) {
+                // Optionally log the error and skip this assistant.
+                continue;
+            }
+        }
+
+        return $assistants;
+    }
 }

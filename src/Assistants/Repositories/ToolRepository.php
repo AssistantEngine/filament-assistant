@@ -18,12 +18,12 @@ class ToolRepository
         if (isset($toolsConfig[$toolIdentifier])) {
             $toolDefinition = $toolsConfig[$toolIdentifier];
             if (isset($toolDefinition['tool']) && is_callable($toolDefinition['tool'])) {
-                $toolInstance = call_user_func($toolDefinition['tool']);
+                // Store the callable instead of the resolved instance.
                 return new Tool(
                     $toolIdentifier,
                     $toolDefinition['namespace'] ?? '',
                     $toolDefinition['description'] ?? '',
-                    $toolInstance
+                    $toolDefinition['tool'] 
                 );
             }
         }

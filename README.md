@@ -1,6 +1,6 @@
 # Filament Assistant
 
-The Filament Assistant Plugin by [Assistant Engine](https://www.assistant-engine.com/) makes it very easy to add conversational AI capabilities directly into Laravel Filament projects. It includes a chat sidebar, context resolver and the possibility to connect to 3rd party tools.
+The Filament Assistant Plugin by [Assistant Engine](https://www.assistant-engine.com/) makes it very easy to add conversational AI capabilities directly into Laravel Filament projects. It includes a chat sidebar, context resolver and the possibility to connect to 3rd party tools (like **Trello**, **Notion**, **Bitbucket** or **Github**).
 
 ## Requirements
 
@@ -189,7 +189,85 @@ return [
 
 ```
 
+If you need runtime information during tool calling you can also inject the active run into the closure and then you have access to the actual thread and user identifier.
+
+```php
+    'tools' => [
+        'weather' => [
+            'namespace'   => 'weather',
+            'description' => 'Function to get informations about the weather.',
+            'tool'        => function (\AssistantEngine\Filament\Runs\Models\Run $run) {
+                // Now you can access:
+                // $thread = $run->thread;
+                // $userIdentifier = $thread->user_identifier;
+                
+                return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherOpenFunction();
+            },
+        ]
+    ]
+```
+
 Feel free to change the assistants, add new tools and also update the other configuration parameters as needed.
+
+## Tool Calling
+
+If you want your assistant to access your application, all you need to do is implement the *AbstractOpenFunction* to create a new Tool and add it to your configuration file. Please read also the **[Open Function Repository](https://github.com/AssistantEngine/open-functions-core)** to learn more about Open Functions.
+
+An example implementation could be:
+
+```php
+use AssistantEngine\OpenFunctions\Core\Contracts\AbstractOpenFunction;
+use AssistantEngine\OpenFunctions\Core\Models\Responses\TextResponseItem;
+use AssistantEngine\OpenFunctions\Core\Helpers\FunctionDefinition;
+use AssistantEngine\OpenFunctions\Core\Helpers\Parameter;
+
+class HelloWorldOpenFunction extends AbstractOpenFunction
+{
+    /**
+     * Generate function definitions.
+     *
+     * This method returns a schema that defines the "helloWorld" function.
+     */
+    public function generateFunctionDefinitions(): array
+    {
+        // Create a new function definition for helloWorld.
+        $functionDef = new FunctionDefinition(
+            'helloWorld',
+            'Returns a friendly greeting.'
+        );
+
+        // In this simple example, no parameters are required.
+        // If parameters were needed, you could add them like this:
+        // $functionDef->addParameter(Parameter::string("name")
+        //     ->description("Optional name to greet")
+        //     ->required());
+        
+        // Return the function schema as an array.
+        return [$functionDef->createFunctionDescription()];
+    }
+
+    /**
+     * The actual implementation of the function.
+     *
+     * @return TextResponseItem A text response containing the greeting.
+     */
+    public function helloWorld()
+    {
+        return new TextResponseItem("Hello, world!");
+    }
+}
+```
+
+### Available Open Function Implementations
+
+In addition to creating your own Open Functions, there are several ready-to-use implementations available to extend your assistant’s capabilities. Simply add the corresponding tool configuration in your config/filament-assistant.php file to integrate them. Here’s a quick overview:
+
+- **[Notion Open Function](https://github.com/AssistantEngine/open-functions-notion)**: Connects to your Notion workspace and enables functionalities such as listing databases, retrieving pages, and managing content blocks.
+- **[GitHub Open Function](https://github.com/AssistantEngine/open-functions-github)**: Integrates with GitHub to allow repository operations like listing branches, reading files, and committing changes.
+- **[Bitbucket Open Function](https://github.com/AssistantEngine/open-functions-bitbucket)**: Provides an interface similar to GitHub’s, enabling you to interact with Bitbucket repositories to list files, read file contents, and commit modifications.
+- **[Trello Open Function](https://github.com/AssistantEngine/open-functions-trello)**: Enables interactions with Trello boards, lists, and cards, facilitating project management directly within your assistant.
+
+## Resolvers
 
 ### Conversation Option Resolver
 
@@ -446,56 +524,36 @@ class Product extends Model implements ContextModelInterface
 }
 ```
 
-### Tool Calling
+## Assistant Chat Page
 
-Of course, there's also the flow backwards from the chat to your application, so that the assistant can access your application. All you need to do is implement the *AbstractOpenFunction* to create a new Tool and add it to your configuration file. Please read also the **[Open Function Repository](https://github.com/AssistantEngine/open-functions-core)**  to learn more about Open Functions.
+In addition to the built-in chat sidebar, you can add a dedicated Assistant Chat Page in your Filament panel. This page allows you to interact with your assistants directly from a full-page interface. To enable this feature, simply add the chat page to your panel provider.
 
-An example implementation could be:
+For example, you can update your panel provider as follows:
 
 ```php
-use AssistantEngine\OpenFunctions\Core\Contracts\AbstractOpenFunction;
-use AssistantEngine\OpenFunctions\Core\Models\Responses\TextResponseItem;
-use AssistantEngine\OpenFunctions\Core\Helpers\FunctionDefinition;
-use AssistantEngine\OpenFunctions\Core\Helpers\Parameter;
+use AssistantEngine\Filament\Chat\Components\ChatPage;
+use AssistantEngine\Filament\FilamentAssistantPlugin;
+use Filament\Panels\Panel;
+use Filament\Panels\PanelProvider;
 
-class HelloWorldOpenFunction extends AbstractOpenFunction
+class YourPanelProvider extends PanelProvider
 {
-    /**
-     * Generate function definitions.
-     *
-     * This method returns a schema that defines the "helloWorld" function.
-     */
-    public function generateFunctionDefinitions(): array
+    public function panel(Panel $panel): Panel
     {
-        // Create a new function definition for helloWorld.
-        $functionDef = new FunctionDefinition(
-            'helloWorld',
-            'Returns a friendly greeting.'
-        );
-
-        // In this simple example, no parameters are required.
-        // If parameters were needed, you could add them like this:
-        // $functionDef->addParameter(Parameter::string("name")
-        //     ->description("Optional name to greet")
-        //     ->required());
-        
-        // Return the function schema as an array.
-        return [$functionDef->createFunctionDescription()];
-    }
-
-    /**
-     * The actual implementation of the function.
-     *
-     * @return TextResponseItem A text response containing the greeting.
-     */
-    public function helloWorld()
-    {
-        return new TextResponseItem("Hello, world!");
+        return $panel
+            ->plugin(FilamentAssistantPlugin::make())
+            // Register the dedicated chat page:
+           ->pages([
+                \AssistantEngine\Filament\Chat\Pages\AssistantChat::class
+            ])
     }
 }
 ```
 
-### Events
+![Assistant Chat Example](media/assistant-chat.png)
+
+
+## Events
 
 After the message is processed, the page component automatically refreshes so that you can see what the assistant updated for you. If you want, you can also manually listen to the event; just implement a listener on ```ChatComponent::EVENT_RUN_FINISHED``` and then you can process your custom logic.
 
@@ -514,6 +572,10 @@ public function onRunFinished($messages)
 We’ve created more repositories to make AI integration even simpler and more powerful! Check them out:
 
 - **[Open Functions Core](https://github.com/AssistantEngine/open-functions-core)**: Open Functions provide a standardized way to implement and invoke functions for tool calling with large language models (LLMs).
+- **[Notion Open Function](https://github.com/AssistantEngine/open-functions-notion)**: Connects to your Notion workspace and enables functionalities such as listing databases, retrieving pages, and managing content blocks.
+- **[GitHub Open Function](https://github.com/AssistantEngine/open-functions-github)**: Integrates with GitHub to allow repository operations like listing branches, reading files, and committing changes.
+- **[Bitbucket Open Function](https://github.com/AssistantEngine/open-functions-bitbucket)**: Provides an interface similar to GitHub’s, enabling you to interact with Bitbucket repositories to list files, read file contents, and commit modifications.
+- **[Trello Open Function](https://github.com/AssistantEngine/open-functions-trello)**: Enables interactions with Trello boards, lists, and cards, facilitating project management directly within your assistant.
 
 > We are a young startup aiming to make it easy for developers to add AI to their applications. We welcome feedback, questions, comments, and contributions. Feel free to contact us at [contact@assistant-engine.com](mailto:contact@assistant-engine.com).
 

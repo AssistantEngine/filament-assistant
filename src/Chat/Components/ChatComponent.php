@@ -69,6 +69,7 @@ class ChatComponent extends Component
     {
         $conversation = $this->driver->recreate($this->conversationId);
         $this->conversationId = $conversation->identifier;
+        $this->showScrollIcon = false;
 
         $this->initializeComponent();
     }

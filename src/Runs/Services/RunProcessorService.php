@@ -243,10 +243,11 @@ class RunProcessorService implements RunProcessorInterface
 
         foreach ($this->assistant->tools as $tool) {
             // Assumes that each tool has an "instance" property implementing AbstractOpenFunction.
-            if (isset($tool->instance)) {
+            $openFunction = $tool->resolveInstance($this->run);
+            if ($openFunction) {
                 // Use the tool's namespace (or fallback to identifier) and description.
                 $namespace = $tool->namespace ?: $tool->identifier;
-                $registry->registerOpenFunction($namespace, $tool->description, $tool->instance);
+                $registry->registerOpenFunction($namespace, $tool->description, $openFunction);
             }
         }
 
