@@ -4,6 +4,7 @@ namespace AssistantEngine\Filament\Chat\Resolvers;
 
 use AssistantEngine\Filament\Chat\Contracts\ConversationOptionResolverInterface;
 use AssistantEngine\Filament\Chat\Models\ConversationOption;
+use AssistantEngine\Filament\Chat\Pages\AssistantChat;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Config;
 
@@ -15,6 +16,10 @@ class ConversationOptionResolver implements ConversationOptionResolverInterface
 
         if (!$assistantKey) {
             throw new \Exception('assistant-key must be set');
+        }
+
+        if ($page instanceof AssistantChat) {
+            return null;
         }
 
         if (!auth()->check()) {

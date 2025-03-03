@@ -10,6 +10,9 @@ class Assistant
     public string $description;
     public LLMConnection $llmConnection;
     public string $model;
+    /**
+     * @var Tool[]
+     */
     public array $tools; // Array of Tool model instances
 
     public function __construct(
