@@ -1,6 +1,6 @@
 # Filament Assistant
 
-The Filament Assistant Plugin by [Assistant Engine](https://www.assistant-engine.com/) makes it very easy to add conversational AI capabilities directly into Laravel Filament projects. It includes a chat sidebar, context resolver and the possibility to connect to 3rd party tools (like **Trello**, **Notion**, **Bitbucket** or **Github**).
+The Filament Assistant Plugin by [Assistant Engine](https://www.assistant-engine.com/) makes it very easy to add conversational AI capabilities directly into Laravel Filament projects. It includes a chat sidebar, context resolver and the possibility to connect to 3rd party tools (like **Slack**, **Trello**, **Notion**, **Jira Service Desk**, **Bitbucket** or **Github**).
 
 ## Requirements
 
