@@ -18,12 +18,18 @@ class ToolRepository
         if (isset($toolsConfig[$toolIdentifier])) {
             $toolDefinition = $toolsConfig[$toolIdentifier];
             if (isset($toolDefinition['tool']) && is_callable($toolDefinition['tool'])) {
-                // Store the callable instead of the resolved instance.
+                // Optionally get the extension callable if it exists.
+                $extension = null;
+                if (isset($toolDefinition['extension']) && is_callable($toolDefinition['extension'])) {
+                    $extension = $toolDefinition['extension'];
+                }
+                // Create a new Tool instance, passing the extension if available.
                 return new Tool(
                     $toolIdentifier,
                     $toolDefinition['namespace'] ?? '',
                     $toolDefinition['description'] ?? '',
-                    $toolDefinition['tool']
+                    $toolDefinition['tool'],
+                    $extension
                 );
             }
         }

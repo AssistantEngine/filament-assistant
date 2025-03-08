@@ -1,6 +1,22 @@
+<div align="center">
+
 # Filament Assistant
 
-The Filament Assistant Plugin by [Assistant Engine](https://www.assistant-engine.com/) makes it very easy to add conversational AI capabilities directly into Laravel Filament projects. It includes a chat sidebar, context resolver and the possibility to connect to 3rd party tools (like **Slack**, **Trello**, **Notion**, **Jira Service Desk**, **Bitbucket** or **Github**).
+[![Demo Video](media/filament-assistant.gif)]
+
+</div>
+
+---
+
+**Filament Assistant** is an AI-powered plugin that seamlessly integrates conversational capabilities into your Laravel Filament projects. Developed by [Assistant Engine](https://assistant-engine.com/), it provides a feature-rich chat sidebar, intelligent context resolution, and effortless integration with popular tools like **Slack**, **Trello**, **Notion**, **Jira Service Desk**, **Bitbucket**, and **GitHub**.
+
+## Key Features:
+- ✅ **Multiple Assistants** – Create AI assistants for different use cases.
+- ✅ **Tool Calls** – Let your assistant execute actions, retrieve data and integrate with external tools.
+- ✅ **Context Awareness** – Pass relevant page data for smarter responses.
+- ✅ **Easy Setup** – Configurable & ready to go in minutes.
+- ✅ **Privacy First** – Runs entirely locally, ensuring full control over your data.
+- ✅ **Flexible AI Integration** – Works with OpenAI & any LLM using the same API format.
 
 ## Requirements
 
@@ -202,6 +218,26 @@ If you need runtime information during tool calling you can also inject the acti
                 // $userIdentifier = $thread->user_identifier;
                 
                 return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherOpenFunction();
+            },
+        ]
+    ]
+```
+
+If you want to add an extension to your tool you can do it by defining the *extensions* key to the tool configuration. Learn more about *extensions* in the **[Core Repository](https://github.com/AssistantEngine/open-functions-core)**.
+
+```php
+    'tools' => [
+        'weather' => [
+            'namespace'   => 'weather',
+            'description' => 'Function to get information about the weather.',
+            'tool'        => function () {
+                return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherOpenFunction();
+            },
+            'extension'   => function (\AssistantEngine\Filament\Runs\Models\Run $run) {
+                // Now you can access runtime details:
+                // $thread = $run->thread;
+                // $userIdentifier = $thread->user_identifier;
+                return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherMessageListExtension();
             },
         ]
     ]
