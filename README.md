@@ -7,7 +7,7 @@
 # Filament Assistant
 
 **Free & Open Source Version**  
-*For more features and a cloud-based experience, check out [Assistant Engine](https://assistant-engine.com/).*
+*For more features and a cloud-based assistant experience, check out [Assistant Engine](https://assistant-engine.com/).*
 
 **Filament Assistant** is an AI-powered plugin that seamlessly integrates conversational capabilities into your Laravel Filament projects. Developed by [Assistant Engine](https://assistant-engine.com/), it provides a feature-rich chat sidebar, intelligent context resolution, and effortless integration with popular tools like **Slack**, **Trello**, **Notion**, **Jira Service Desk**, **Bitbucket**, and **GitHub**.
 
@@ -299,6 +299,7 @@ class HelloWorldOpenFunction extends AbstractOpenFunction
 
 In addition to creating your own Open Functions, there are several ready-to-use implementations available to extend your assistant’s capabilities. Simply add the corresponding tool configuration in your config/filament-assistant.php file to integrate them. Here’s a quick overview:
 
+- **[Memory](https://github.com/AssistantEngine/open-functions-memory)**:  Provides a standardized API for storing, updating, retrieving, and removing conversational memories.
 - **[Notion](https://github.com/AssistantEngine/open-functions-notion)**: Connects to your Notion workspace and enables functionalities such as listing databases, retrieving pages, and managing content blocks.
 - **[GitHub](https://github.com/AssistantEngine/open-functions-github)**: Integrates with GitHub to allow repository operations like listing branches, reading files, and committing changes.
 - **[Bitbucket](https://github.com/AssistantEngine/open-functions-bitbucket)**: Provides an interface similar to GitHub’s, enabling you to interact with Bitbucket repositories to list files, read file contents, and commit modifications.
@@ -614,6 +615,7 @@ We’ve created more repositories to make AI integration even simpler and more p
 - **[Open Functions Actions](https://github.com/AssistantEngine/open-functions-actions)**: Serializes OpenFunctions into ChatGPT actions.
 
 Ready-to-use **OpenFunctions** implementations:
+- **[Memory](https://github.com/AssistantEngine/open-functions-memory)**:  Provides a standardized API for storing, updating, retrieving, and removing conversational memories.
 - **[Notion](https://github.com/AssistantEngine/open-functions-notion)**: Connects to your Notion workspace and enables functionalities such as listing databases, retrieving pages, and managing content blocks.
 - **[GitHub](https://github.com/AssistantEngine/open-functions-github)**: Integrates with GitHub to allow repository operations like listing branches, reading files, and committing changes.
 - **[Bitbucket](https://github.com/AssistantEngine/open-functions-bitbucket)**: Provides an interface similar to GitHub’s, enabling you to interact with Bitbucket repositories to list files, read file contents, and commit modifications.
@@ -629,7 +631,7 @@ Ready-to-use **OpenFunctions** implementations:
 For users looking for enhanced functionality, the **PRO Version** offers advanced features beyond the standard Filament Assistant capabilities:
 - **Tool Call Confirmations:** Require explicit user confirmation for specific tool calls before they are executed, ensuring an extra layer of safety.
 - **RAG:** Index documents and make them accessible via a dedicated RAG tool.
-- **Conversational Memory:** Empower your assistants with conversational memory for improved context awareness and more natural interactions.
+- **Conversational Memory Management:** Enhance your assistants with dynamic conversational memory, featuring an intuitive admin panel that lets users view and manage stored memories for improved context awareness and more natural interactions.
 - **Assistant Admin Panel:** Easily configure your assistants and tools.
 - **Monitoring and Analytics:** Benefit from built-in monitoring and analytic capabilities to keep track of performance and usage.
 
