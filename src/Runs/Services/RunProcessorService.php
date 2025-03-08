@@ -13,6 +13,7 @@ use AssistantEngine\Filament\Threads\Models\Thread;
 use AssistantEngine\Filament\Threads\Models\ToolCall;
 use AssistantEngine\Filament\Threads\Repositories\MessageRepository;
 use AssistantEngine\Filament\Runs\Presenter\LLMPresenter;
+use AssistantEngine\OpenFunctions\Core\Contracts\MessageListExtensionInterface;
 use AssistantEngine\OpenFunctions\Core\Models\Messages\DeveloperMessage;
 use AssistantEngine\OpenFunctions\Core\Services\OpenFunctionRegistry;
 use OpenAI;
@@ -88,7 +89,9 @@ class RunProcessorService implements RunProcessorInterface
         $registry = $this->getOpenFunctionRegistry();
         $functions  = $registry->getFunctionDefinitions();
 
-        $openaiMessages->addExtension($registry);
+        $toolExtensions = $this->getExtensions();
+
+        $openaiMessages->addExtensions(array_merge([$registry], $toolExtensions));
 
         if ($this->run->additional_run_data) {
             $additionalDeveloperMessage = new DeveloperMessage('Additional Context for the Run: ' . PHP_EOL . json_encode($this->run->additional_run_data));
@@ -252,5 +255,22 @@ class RunProcessorService implements RunProcessorInterface
         }
 
         return $registry;
+    }
+
+    /**
+     * @return MessageListExtensionInterface[]
+     */
+    private function getExtensions()
+    {
+        $result = [];
+
+        foreach ($this->assistant->tools as $tool) {
+
+            if ($tool->hasExtension()) {
+                $result[] = $tool->resolveExtension($this->run);
+            }
+        }
+
+        return $result;
     }
 }
