@@ -207,6 +207,26 @@ If you need runtime information during tool calling you can also inject the acti
     ]
 ```
 
+If you want to add an extension to your tool you can do it by defining the *extensions* key to the tool configuration. Learn more about *extensions* in the **[Core Repository](https://github.com/AssistantEngine/open-functions-core)**.
+
+```php
+    'tools' => [
+        'weather' => [
+            'namespace'   => 'weather',
+            'description' => 'Function to get information about the weather.',
+            'tool'        => function () {
+                return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherOpenFunction();
+            },
+            'extension'   => function (\AssistantEngine\Filament\Runs\Models\Run $run) {
+                // Now you can access runtime details:
+                // $thread = $run->thread;
+                // $userIdentifier = $thread->user_identifier;
+                return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherMessageListExtension();
+            },
+        ]
+    ]
+```
+
 Feel free to change the assistants, add new tools and also update the other configuration parameters as needed.
 
 ## Tool Calling
