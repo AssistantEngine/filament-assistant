@@ -2,7 +2,7 @@
 
 # Filament Assistant
 
-[![Demo Video](media/filament-assistant.gif)]
+![Demo Video](media/filament-assistant.gif)
 
 </div>
 
