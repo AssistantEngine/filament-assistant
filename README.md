@@ -116,6 +116,7 @@ return [
             'instruction'       => 'You are a helpful assistant.',
             'llm_connection'    => 'openai', // This should correspond to an entry in the llm_connections section.
             'model'             => 'gpt-4o',
+            'registry_meta_mode' => false, // See meta mode for details
             // List the tool identifiers to load for this assistant.
             'tools'             => ['weather']
         ],
@@ -125,6 +126,7 @@ return [
             'instruction'       => 'Your are Frank a funny person who loves to help customers find the right food.',
             'llm_connection'    => 'openai', // This should correspond to an entry in the llm_connections section.
             'model'             => 'gpt-4o',
+            'registry_meta_mode' => false,  // See meta mode for details
             // List the tool identifiers to load for this assistant.
             'tools'             => ['pizza', 'burger']
         ],
@@ -138,6 +140,16 @@ return [
             'url'     => 'https://api.openai.com/v1/',
             'api_key' => env('OPEN_AI_KEY'),
         ]
+    ],
+
+    // Registry configuration, learn more about the registry in the Core Repository (https://github.com/AssistantEngine/open-functions-core)
+    'registry' => [
+        'description' => 'Registry where you can control active functions.',
+        'presenter'   => function($registry) {
+            // This closure receives the open function registry as a parameter.
+            // You can customize how the registry is "presented" here.
+            return new \AssistantEngine\OpenFunctions\Core\Presenter\RegistryPresenter($registry);
+        },
     ],
 
     // Tools configuration: each tool is identified by a key.
@@ -224,7 +236,7 @@ If you need runtime information during tool calling you can also inject the acti
     ]
 ```
 
-If you want to add an extension to your tool you can do it by defining the *extensions* key to the tool configuration. Learn more about *extensions* in the **[Core Repository](https://github.com/AssistantEngine/open-functions-core)**.
+If you want to add a presenter to your tool you can do it by defining the *presenter* key to the tool configuration. The presenter is an optional callable that returns an instance implementing the **MessageListExtensionInterface**. Learn more about *Extensions* in the **[Core Repository](https://github.com/AssistantEngine/open-functions-core?tab=readme-ov-file#message-list-extensions)**.
 
 ```php
     'tools' => [
@@ -234,10 +246,8 @@ If you want to add an extension to your tool you can do it by defining the *exte
             'tool'        => function () {
                 return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherOpenFunction();
             },
-            'extension'   => function (\AssistantEngine\Filament\Runs\Models\Run $run) {
-                // Now you can access runtime details:
-                // $thread = $run->thread;
-                // $userIdentifier = $thread->user_identifier;
+            'presenter'   => function (\AssistantEngine\Filament\Runs\Models\Run $run) {
+                // Return an instance that implements MessageListExtensionInterface, if needed.             
                 return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherMessageListExtension();
             },
         ]
@@ -248,7 +258,7 @@ Feel free to change the assistants, add new tools and also update the other conf
 
 ## Tool Calling
 
-If you want your assistant to access your application, all you need to do is implement the *AbstractOpenFunction* to create a new Tool and add it to your configuration file. Please read also the **[Open Function Repository](https://github.com/AssistantEngine/open-functions-core)** to learn more about Open Functions.
+If you want your assistant to access your application, all you need to do is implement the *AbstractOpenFunction* to create a new Tool and add it to your configuration file. Please read also the **[Open Function Repository](https://github.com/AssistantEngine/open-functions-core?tab=readme-ov-file#function-calling)** to learn more about Open Functions.
 
 An example implementation could be:
 
@@ -294,6 +304,10 @@ class HelloWorldOpenFunction extends AbstractOpenFunction
     }
 }
 ```
+
+#### Meta Mode
+
+Enable **MetaMode** in the assistant configuration to expose only the meta registry functions, letting the assistant dynamically activate or deactivate additional functions as needed—ideal for when too many functions may overwhelm an LLM call. For more details, see the **[Open Functions Core](https://github.com/AssistantEngine/open-functions-core?tab=readme-ov-file#meta-mode)** repository.
 
 ### Available Open Function Implementations
 

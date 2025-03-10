@@ -13,7 +13,8 @@ class Assistant
     /**
      * @var Tool[]
      */
-    public array $tools; // Array of Tool model instances
+    public array $tools;
+    public bool $registryMetaMode;
 
     public function __construct(
         string $key,
@@ -22,14 +23,16 @@ class Assistant
         string $description,
         LLMConnection $llmConnection,
         string $model,
-        array $tools = []  // Default to an empty array if no tools are provided.
+        array $tools = [],
+        bool $registryMetaMode = false  // Default to false.
     ) {
-        $this->key          = $key;
-        $this->name         = $name;
-        $this->instruction  = $instruction;
-        $this->description  = $description;
-        $this->llmConnection = $llmConnection;
-        $this->model        = $model;
-        $this->tools        = $tools;
+        $this->key              = $key;
+        $this->name             = $name;
+        $this->instruction      = $instruction;
+        $this->description      = $description;
+        $this->llmConnection    = $llmConnection;
+        $this->model            = $model;
+        $this->tools            = $tools;
+        $this->registryMetaMode = $registryMetaMode;
     }
 }

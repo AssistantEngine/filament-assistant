@@ -3,6 +3,7 @@
 namespace AssistantEngine\Filament\Runs\Services;
 
 use AssistantEngine\Filament\Assistants\Models\Assistant;
+use AssistantEngine\Filament\Assistants\Repositories\RegistryRepository;
 use AssistantEngine\Filament\Assistants\Repositories\ToolRepository;
 use AssistantEngine\Filament\Runs\Contracts\RunProcessorInterface;
 use AssistantEngine\Filament\Runs\Models\Run;
@@ -15,7 +16,7 @@ use AssistantEngine\Filament\Threads\Repositories\MessageRepository;
 use AssistantEngine\Filament\Runs\Presenter\LLMPresenter;
 use AssistantEngine\OpenFunctions\Core\Contracts\MessageListExtensionInterface;
 use AssistantEngine\OpenFunctions\Core\Models\Messages\DeveloperMessage;
-use AssistantEngine\OpenFunctions\Core\Services\OpenFunctionRegistry;
+use AssistantEngine\OpenFunctions\Core\Tools\OpenFunctionRegistry;
 use OpenAI;
 
 class RunProcessorService implements RunProcessorInterface
@@ -27,15 +28,18 @@ class RunProcessorService implements RunProcessorInterface
     protected Thread $thread;
     protected Assistant $assistant;
     protected OpenFunctionRegistry $registry;
+    private RegistryRepository $registryRepository;
 
     public function __construct(
         AssistantRepository $assistantRepository,
         MessageRepository $messageRepository,
-        ToolRepository $toolRepository
+        ToolRepository $toolRepository,
+        RegistryRepository $registryRepository
     ) {
         $this->assistantRepository = $assistantRepository;
         $this->messageRepository = $messageRepository;
         $this->toolRepository = $toolRepository;
+        $this->registryRepository = $registryRepository;
     }
 
     /**
@@ -87,11 +91,19 @@ class RunProcessorService implements RunProcessorInterface
         $openaiMessages = LLMPresenter::transformThreadMessages($this->thread, $this->assistant);
 
         $registry = $this->getOpenFunctionRegistry();
-        $functions  = $registry->getFunctionDefinitions();
+        $functions  = $registry->generateFunctionDefinitions();
 
         $toolExtensions = $this->getExtensions();
 
-        $openaiMessages->addExtensions(array_merge([$registry], $toolExtensions));
+        if ($toolExtensions) {
+            $openaiMessages->addExtensions($toolExtensions);
+        }
+
+        $registryPresenter = $this->registryRepository->resolveRegistryPresenter($registry);
+
+        if ($registryPresenter) {
+            $openaiMessages->addExtension($registryPresenter);
+        }
 
         if ($this->run->additional_run_data) {
             $additionalDeveloperMessage = new DeveloperMessage('Additional Context for the Run: ' . PHP_EOL . json_encode($this->run->additional_run_data));
@@ -200,7 +212,7 @@ class RunProcessorService implements RunProcessorInterface
 
                 if ($namespacedName) {
                     $toolResponse = $this->getOpenFunctionRegistry()
-                        ->executeFunctionCall($namespacedName, $arguments);
+                        ->callMethod($namespacedName, $arguments);
 
                     $toolCall = ToolCall::create([
                         'call_id' => $toolCall['id'],
@@ -242,7 +254,11 @@ class RunProcessorService implements RunProcessorInterface
             return $this->registry;
         }
 
-        $registry = new OpenFunctionRegistry();
+        if ($this->assistant->registryMetaMode) {
+            $registry = new OpenFunctionRegistry(true, $this->registryRepository->getRegistryDescription());
+        } else {
+            $registry = new OpenFunctionRegistry();
+        }
 
         foreach ($this->assistant->tools as $tool) {
             // Assumes that each tool has an "instance" property implementing AbstractOpenFunction.
@@ -253,6 +269,8 @@ class RunProcessorService implements RunProcessorInterface
                 $registry->registerOpenFunction($namespace, $tool->description, $openFunction);
             }
         }
+
+        $this->registry = $registry;
 
         return $registry;
     }
@@ -265,9 +283,12 @@ class RunProcessorService implements RunProcessorInterface
         $result = [];
 
         foreach ($this->assistant->tools as $tool) {
+            if ($tool->hasPresenter()) {
+                $presenter = $tool->resolvePresenter($this->run);
 
-            if ($tool->hasExtension()) {
-                $result[] = $tool->resolveExtension($this->run);
+                if ($presenter) {
+                    $result[] = $presenter;
+                }
             }
         }
 
