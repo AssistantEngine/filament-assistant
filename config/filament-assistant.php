@@ -1,7 +1,5 @@
 <?php
 
-use AssistantEngine\OpenFunctions\Core\Presenter\RegistryPresenter;
-
 return [
     // Set the default chat driver class. You can override this in your local config.
     'chat_driver' => \AssistantEngine\Filament\Chat\Driver\DefaultChatDriver::class,
@@ -54,7 +52,7 @@ return [
         'presenter'   => function($registry) {
             // This closure receives the open function registry as a parameter.
             // You can customize how the registry is "presented" here.
-            return new RegistryPresenter($registry);
+            return new \AssistantEngine\OpenFunctions\Core\Presenter\RegistryPresenter($registry);
         },
     ],
 

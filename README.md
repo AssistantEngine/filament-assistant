@@ -115,6 +115,7 @@ return [
             'instruction'       => 'You are a helpful assistant.',
             'llm_connection'    => 'openai', // This should correspond to an entry in the llm_connections section.
             'model'             => 'gpt-4o',
+            'registry_meta_mode' => false, // See meta mode for details
             // List the tool identifiers to load for this assistant.
             'tools'             => ['weather']
         ],
@@ -124,6 +125,7 @@ return [
             'instruction'       => 'Your are Frank a funny person who loves to help customers find the right food.',
             'llm_connection'    => 'openai', // This should correspond to an entry in the llm_connections section.
             'model'             => 'gpt-4o',
+            'registry_meta_mode' => false,  // See meta mode for details
             // List the tool identifiers to load for this assistant.
             'tools'             => ['pizza', 'burger']
         ],
@@ -137,6 +139,16 @@ return [
             'url'     => 'https://api.openai.com/v1/',
             'api_key' => env('OPEN_AI_KEY'),
         ]
+    ],
+
+    // Registry configuration, learn more about the registry in the Core Repository (https://github.com/AssistantEngine/open-functions-core)
+    'registry' => [
+        'description' => 'Registry where you can control active functions.',
+        'presenter'   => function($registry) {
+            // This closure receives the open function registry as a parameter.
+            // You can customize how the registry is "presented" here.
+            return new \AssistantEngine\OpenFunctions\Core\Presenter\RegistryPresenter($registry);
+        },
     ],
 
     // Tools configuration: each tool is identified by a key.
@@ -293,6 +305,10 @@ class HelloWorldOpenFunction extends AbstractOpenFunction
     }
 }
 ```
+
+#### Meta Mode
+
+Enable **MetaMode** in the assistant configuration to expose only the meta registry functions, letting the assistant dynamically activate or deactivate additional functions as needed—ideal for when too many functions may overwhelm an LLM call. For more details, see the **[Open Functions Core](https://github.com/AssistantEngine/open-functions-core/tree/development?tab=readme-ov-file#meta-mode)** repository.
 
 ### Available Open Function Implementations
 
