@@ -1,5 +1,7 @@
 <?php
 
+use AssistantEngine\OpenFunctions\Core\Presenter\RegistryPresenter;
+
 return [
     // Set the default chat driver class. You can override this in your local config.
     'chat_driver' => \AssistantEngine\Filament\Chat\Driver\DefaultChatDriver::class,
@@ -20,6 +22,7 @@ return [
             'instruction'       => 'You are a helpful assistant.',
             'llm_connection'    => 'openai', // This should correspond to an entry in the llm_connections section.
             'model'             => 'gpt-4o',
+            'registry_meta_mode' => false,
             // List the tool identifiers to load for this assistant.
             'tools'             => ['weather']
         ],
@@ -29,6 +32,7 @@ return [
             'instruction'       => 'Your are Frank a funny person who loves to help customers find the right food.',
             'llm_connection'    => 'openai', // This should correspond to an entry in the llm_connections section.
             'model'             => 'gpt-4o',
+            'registry_meta_mode' => false,
             // List the tool identifiers to load for this assistant.
             'tools'             => ['pizza', 'burger']
         ],
@@ -42,6 +46,16 @@ return [
             'url'     => 'https://api.openai.com/v1/',
             'api_key' => env('OPEN_AI_KEY'),
         ]
+    ],
+
+    // Registry configuration
+    'registry' => [
+        'description' => 'Registry where you can control active functions.',
+        'presenter'   => function($registry) {
+            // This closure receives the open function registry as a parameter.
+            // You can customize how the registry is "presented" here.
+            return new RegistryPresenter($registry);
+        },
     ],
 
     // Tools configuration: each tool is identified by a key.

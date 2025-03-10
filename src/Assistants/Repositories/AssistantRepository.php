@@ -60,7 +60,10 @@ class AssistantRepository
             $tools = $this->toolRepository->getTools($assistantConfig['tools']);
         }
 
-        // Create and return the Assistant model with the resolved tools.
+        // Retrieve registry meta mode flag; default to false if not set.
+        $registryMetaMode = $assistantConfig['registry_meta_mode'] ?? false;
+
+        // Create and return the Assistant model with the resolved tools and the new flag.
         return new Assistant(
             $assistantKey,
             $assistantConfig['name'] ?? $assistantKey,
@@ -68,7 +71,8 @@ class AssistantRepository
             $assistantConfig['description'] ?? '',
             $llmConnection,
             $assistantConfig['model'] ?? 'gpt-4o',
-            $tools
+            $tools,
+            $registryMetaMode
         );
     }
 
