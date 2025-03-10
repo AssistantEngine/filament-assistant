@@ -94,7 +94,10 @@ class RunProcessorService implements RunProcessorInterface
         $functions  = $registry->generateFunctionDefinitions();
 
         $toolExtensions = $this->getExtensions();
-        $openaiMessages->addExtensions($toolExtensions);
+
+        if ($toolExtensions) {
+            $openaiMessages->addExtensions($toolExtensions);
+        }
 
         $registryPresenter = $this->registryRepository->resolveRegistryPresenter($registry);
 
@@ -281,7 +284,11 @@ class RunProcessorService implements RunProcessorInterface
 
         foreach ($this->assistant->tools as $tool) {
             if ($tool->hasPresenter()) {
-                $result[] = $tool->resolvePresenter($this->run);
+                $presenter = $tool->resolvePresenter($this->run);
+
+                if ($presenter) {
+                    $result[] = $presenter;
+                }
             }
         }
 
