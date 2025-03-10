@@ -236,7 +236,7 @@ If you need runtime information during tool calling you can also inject the acti
     ]
 ```
 
-If you want to add an presenter to your tool you can do it by defining the *presenter* key to the tool configuration. The presenter is an optional callable that returns an instance implementing the **MessageListExtensionInterface**. Learn more about *Extensions* in the **[Core Repository](https://github.com/AssistantEngine/open-functions-core)**.
+If you want to add a presenter to your tool you can do it by defining the *presenter* key to the tool configuration. The presenter is an optional callable that returns an instance implementing the **MessageListExtensionInterface**. Learn more about *Extensions* in the **[Core Repository](https://github.com/AssistantEngine/open-functions-core?tab=readme-ov-file#message-list-extensions)**.
 
 ```php
     'tools' => [
@@ -247,7 +247,7 @@ If you want to add an presenter to your tool you can do it by defining the *pres
                 return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherOpenFunction();
             },
             'presenter'   => function (\AssistantEngine\Filament\Runs\Models\Run $run) {
-                // Return an instance that implements MessageListExtensionInterface, if needed.
+                // Return an instance that implements MessageListExtensionInterface, if needed.             
                 return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherMessageListExtension();
             },
         ]
@@ -258,7 +258,7 @@ Feel free to change the assistants, add new tools and also update the other conf
 
 ## Tool Calling
 
-If you want your assistant to access your application, all you need to do is implement the *AbstractOpenFunction* to create a new Tool and add it to your configuration file. Please read also the **[Open Function Repository](https://github.com/AssistantEngine/open-functions-core)** to learn more about Open Functions.
+If you want your assistant to access your application, all you need to do is implement the *AbstractOpenFunction* to create a new Tool and add it to your configuration file. Please read also the **[Open Function Repository](https://github.com/AssistantEngine/open-functions-core?tab=readme-ov-file#function-calling)** to learn more about Open Functions.
 
 An example implementation could be:
 
