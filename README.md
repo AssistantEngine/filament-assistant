@@ -308,7 +308,7 @@ class HelloWorldOpenFunction extends AbstractOpenFunction
 
 #### Meta Mode
 
-Enable **MetaMode** in the assistant configuration to expose only the meta registry functions, letting the assistant dynamically activate or deactivate additional functions as needed—ideal for when too many functions may overwhelm an LLM call. For more details, see the **[Open Functions Core](https://github.com/AssistantEngine/open-functions-core/tree/development?tab=readme-ov-file#meta-mode)** repository.
+Enable **MetaMode** in the assistant configuration to expose only the meta registry functions, letting the assistant dynamically activate or deactivate additional functions as needed—ideal for when too many functions may overwhelm an LLM call. For more details, see the **[Open Functions Core](https://github.com/AssistantEngine/open-functions-core?tab=readme-ov-file#meta-mode)** repository.
 
 ### Available Open Function Implementations
 
