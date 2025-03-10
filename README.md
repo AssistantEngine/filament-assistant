@@ -235,7 +235,7 @@ If you need runtime information during tool calling you can also inject the acti
     ]
 ```
 
-If you want to add an extension to your tool you can do it by defining the *extensions* key to the tool configuration. Learn more about *extensions* in the **[Core Repository](https://github.com/AssistantEngine/open-functions-core)**.
+If you want to add an presenter to your tool you can do it by defining the *presenter* key to the tool configuration. The presenter is an optional callable that returns an instance implementing the **MessageListExtensionInterface**. Learn more about *Extensions* in the **[Core Repository](https://github.com/AssistantEngine/open-functions-core)**.
 
 ```php
     'tools' => [
@@ -245,10 +245,8 @@ If you want to add an extension to your tool you can do it by defining the *exte
             'tool'        => function () {
                 return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherOpenFunction();
             },
-            'extension'   => function (\AssistantEngine\Filament\Runs\Models\Run $run) {
-                // Now you can access runtime details:
-                // $thread = $run->thread;
-                // $userIdentifier = $thread->user_identifier;
+            'presenter'   => function (\AssistantEngine\Filament\Runs\Models\Run $run) {
+                // Return an instance that implements MessageListExtensionInterface, if needed.
                 return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherMessageListExtension();
             },
         ]

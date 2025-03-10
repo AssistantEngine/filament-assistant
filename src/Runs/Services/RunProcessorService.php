@@ -280,9 +280,8 @@ class RunProcessorService implements RunProcessorInterface
         $result = [];
 
         foreach ($this->assistant->tools as $tool) {
-
-            if ($tool->hasExtension()) {
-                $result[] = $tool->resolveExtension($this->run);
+            if ($tool->hasPresenter()) {
+                $result[] = $tool->resolvePresenter($this->run);
             }
         }
 
