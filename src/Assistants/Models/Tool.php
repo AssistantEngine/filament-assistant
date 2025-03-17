@@ -5,6 +5,7 @@ namespace AssistantEngine\Filament\Assistants\Models;
 use AssistantEngine\Filament\Runs\Models\Run;
 use AssistantEngine\OpenFunctions\Core\Contracts\AbstractOpenFunction;
 use AssistantEngine\OpenFunctions\Core\Contracts\MessageListExtensionInterface;
+use Closure;
 use ReflectionFunction;
 
 /**
@@ -63,7 +64,7 @@ class Tool
     public function resolveInstance(Run $run = null): AbstractOpenFunction
     {
         $callable = $this->instance;
-        $reflection = new ReflectionFunction($callable);
+        $reflection = new ReflectionFunction($callable(...));
         if (count($reflection->getParameters()) > 0) {
             return $callable($run);
         }
@@ -86,7 +87,7 @@ class Tool
         }
 
         $callable = $this->presenter;
-        $reflection = new ReflectionFunction($callable);
+        $reflection = new ReflectionFunction($callable(...));
         if (count($reflection->getParameters()) > 0) {
             return $callable($run);
         }
