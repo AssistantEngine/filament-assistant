@@ -5,7 +5,6 @@ namespace AssistantEngine\Filament\Assistants\Models;
 use AssistantEngine\Filament\Runs\Models\Run;
 use AssistantEngine\OpenFunctions\Core\Contracts\AbstractOpenFunction;
 use AssistantEngine\OpenFunctions\Core\Contracts\MessageListExtensionInterface;
-use Closure;
 use ReflectionFunction;
 
 /**
