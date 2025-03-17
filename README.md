@@ -254,6 +254,38 @@ If you want to add a presenter to your tool you can do it by defining the *prese
     ]
 ```
 
+If you want to cache your config you need to convert the closures to callables for example create a ConfigFactory Class like
+
+```php
+namespace App\Factories;
+
+class FilamentConfigFactory
+{
+    public static function weather(Run $run)
+    {
+        return new \AssistantEngine\OpenFunctions\Core\Examples\WeatherOpenFunction();
+    }
+    
+    // ... other methods
+}
+```
+
+and then convert the closures to callables like
+
+```php
+// config/filament-assistant.php
+'tools' => [
+    'weather' => [
+        'namespace'   => 'weather',
+        'description' => 'Function to get informations about the weather.',
+        'tool'        => [\App\Factories\FilamentConfigFactory::class, 'weather'],
+    ],
+    // ... other tools
+]
+```
+
+If you convert all closures to callables you should be able to cache your config with ```php artisan config:cache```
+
 Feel free to change the assistants, add new tools and also update the other configuration parameters as needed.
 
 ## Tool Calling
